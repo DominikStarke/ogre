@@ -1,5 +1,9 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ogre/api/openwebui.dart';
 import 'package:ogre/config.dart';
 import 'package:ogre/controllers/window.dart';
 
@@ -50,8 +54,24 @@ class _MyHomePageState extends State<MyHomePage> {
       return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       return KeyEventResult.handled;
+    } else if (event.logicalKey == LogicalKeyboardKey.enter && event is KeyUpEvent) {
+      submit();
+      return KeyEventResult.handled;
+    } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+      return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
+  }
+
+  Future<void> submit () async {
+    final chat = OWChat(
+      defaultModel: "llama3.2:latest",
+      apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA4MDJhNTc5LWZlZGQtNGViZC05NDE1LTkwZjI4MzJmYmM4MyJ9.U-QNDQKKXi2n7Skm0p3dOHNBMj1F_2AkmAu-DnTa1Ik'
+    );
+
+    await for (final message in chat.chat(searchInputController.text)) {
+      stdout.write(message);
+    }
   }
 
   @override
