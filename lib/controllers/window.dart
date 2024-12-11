@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show exit;
 
 import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -117,7 +118,7 @@ class WindowControllerState extends State<WindowController> with TrayListener, W
     }
   }
 
-  exit([code = 0]) {
+  void closeApplication([code = 0]) {
     exit(code);
   }
 

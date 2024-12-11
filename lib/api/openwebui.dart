@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-/// A class representing a chat interface for an OpenAI compatible API.
+/// A class representing a chat interface for an OpenWebUI compatible API.
 class OWChat {
   final String apiKey;
   final String apiUrl;
@@ -24,40 +24,44 @@ class OWChat {
   Stream<String> chat(String content, {String? model}) async* {
     history.add(Message(role: "user", content: content));
 
-  final request = http.Request('POST', Uri.parse(apiUrl))
-    ..headers.addAll({
-      'Authorization': 'Bearer $apiKey',
-      'Content-Type': 'application/json',
-    })
-    ..body = jsonEncode(ChatRequest(model: model ?? defaultModel, messages: history).toJson());
+    final request = http.Request('POST', Uri.parse(apiUrl))
+      ..headers.addAll({
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      })
+      ..body = jsonEncode(ChatRequest(model: model ?? defaultModel, messages: history).toJson());
 
-  final streamedResponse = await http.Client().send(request);
+    final streamedResponse = await http.Client().send(request);
 
-  if (streamedResponse.statusCode == 200) {
-    final responseStream = streamedResponse.stream.transform(utf8.decoder);
+    if (streamedResponse.statusCode == 200) {
+      final responseStream = streamedResponse.stream.transform(utf8.decoder);
+      StringBuffer completeResponse = StringBuffer();
 
-    await for (var chunk in responseStream) {
-      final messages = chunk.split('\n');
-      for (var message in messages) {
-        if (message.startsWith('data: [DONE]')) {
-          yield '';
-          return;
-        }
-        if (message.isEmpty) continue;
-        final cleanedMessage = message.replaceFirst('data: ', '').trim();
-        try {
-          final chatResponse = ChatResponse.fromJson(jsonDecode(cleanedMessage));
-          for (var choice in chatResponse.choices) {
-            yield choice.message.content ?? '';
+      await for (var chunk in responseStream) {
+        final messages = chunk.split('\n');
+        for (var message in messages) {
+          if (message.startsWith('data: [DONE]')) {
+            history.add(Message(role: "assistant", content: completeResponse.toString()));
+            yield '';
+            return;
           }
-        } catch (e) {
-          print('Error decoding message: $cleanedMessage');
+          if (message.isEmpty) continue;
+          final cleanedMessage = message.replaceFirst('data: ', '').trim();
+          try {
+            final chatResponse = ChatResponse.fromJson(jsonDecode(cleanedMessage));
+            for (var choice in chatResponse.choices) {
+              final content = choice.message.content ?? '';
+              completeResponse.write(content);
+              yield content;
+            }
+          } catch (e) {
+            print('Error decoding message: $cleanedMessage');
+          }
         }
       }
+    } else {
+      throw Exception('Failed to load response');
     }
-  } else {
-    throw Exception('Failed to load response');
-  }
   }
 
   /// Lists available models from the API.

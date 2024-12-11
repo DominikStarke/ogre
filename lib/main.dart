@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -8,11 +9,11 @@ import 'package:ogre/config.dart';
 import 'package:ogre/controllers/window.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const OgreApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class OgreApp extends StatelessWidget {
+  const OgreApp({super.key});
   @override
   Widget build(BuildContext context) {
     return WindowController(
@@ -25,21 +26,21 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const MyHomePage(title: 'Flutter Demo Home Page'),
+        home: const OgreHome(title: 'Flutter Demo Home Page'),
       ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class OgreHome extends StatefulWidget {
+  const OgreHome({super.key, required this.title});
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<OgreHome> createState() => _OgreHomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _OgreHomeState extends State<OgreHome> {
   final TextEditingController searchInputController = TextEditingController();
   FocusNode? _searchInputFocusNode;
   FocusNode get searchInputFocusNode {
@@ -47,6 +48,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return _searchInputFocusNode!;
   }
   late final WindowControllerState window = WindowController.of(context);
+
+  final chat = OWChat(
+    defaultModel: "llama3.1:latest",
+    apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA4MDJhNTc5LWZlZGQtNGViZC05NDE1LTkwZjI4MzJmYmM4MyJ9.U-QNDQKKXi2n7Skm0p3dOHNBMj1F_2AkmAu-DnTa1Ik'
+  );
+
 
   KeyEventResult handleKeyEvent (FocusNode node, KeyEvent event) {
     if (event.logicalKey == LogicalKeyboardKey.escape && event is KeyUpEvent) {
@@ -64,14 +71,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> submit () async {
-    final chat = OWChat(
-      defaultModel: "llama3.2:latest",
-      apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA4MDJhNTc5LWZlZGQtNGViZC05NDE1LTkwZjI4MzJmYmM4MyJ9.U-QNDQKKXi2n7Skm0p3dOHNBMj1F_2AkmAu-DnTa1Ik'
-    );
 
-    await for (final message in chat.chat(searchInputController.text)) {
-      stdout.write(message);
-    }
+    // await for (final message in chat.chat(searchInputController.text)) {
+    //   stdout.write(message);
+    //   stdout.flush();
+    // }
+
+    // stdout.addStream(Stream<List<int>>.fromIterable([
+    //   utf8.encode('Your message'),
+    // ]));
+
+    await stdout.addStream(chat.chat(searchInputController.text).map((v) => utf8.encode(v)));
+    stdout.write('\n');
+    await stdout.flush();
   }
 
   @override

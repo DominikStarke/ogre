@@ -71,7 +71,7 @@ Menu getTrayMenuConfiguration (WindowControllerState controller) {
         key: 'exit_app',
         label: 'Exit App',
         onClick: (menuItem) {
-          controller.exit();
+          controller.closeApplication();
         },
       ),
     ],
