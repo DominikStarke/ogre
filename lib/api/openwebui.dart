@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 
 /// A class representing a chat interface for an OpenWebUI compatible API.
@@ -8,7 +7,7 @@ class OWChat {
   final String apiKey;
   final String apiUrl;
   final String defaultModel;
-  List<Message> history = [];
+  List<Message> _history = [];
 
   /// Creates an instance of [OWChat].
   ///
@@ -22,14 +21,14 @@ class OWChat {
   /// [content] is the message content to be sent.
   /// [model] is the model to be used for the chat. Defaults to the instance's default model.
   Stream<String> chat(String content, {String? model}) async* {
-    history.add(Message(role: "user", content: content));
+    _history.add(Message(role: "user", content: content));
 
     final request = http.Request('POST', Uri.parse(apiUrl))
       ..headers.addAll({
         'Authorization': 'Bearer $apiKey',
         'Content-Type': 'application/json',
       })
-      ..body = jsonEncode(ChatRequest(model: model ?? defaultModel, messages: history).toJson());
+      ..body = jsonEncode(ChatRequest(model: model ?? defaultModel, messages: _history).toJson());
 
     final streamedResponse = await http.Client().send(request);
 
@@ -41,7 +40,7 @@ class OWChat {
         final messages = chunk.split('\n');
         for (var message in messages) {
           if (message.startsWith('data: [DONE]')) {
-            history.add(Message(role: "assistant", content: completeResponse.toString()));
+            _history.add(Message(role: "assistant", content: completeResponse.toString()));
             yield '';
             return;
           }
@@ -79,6 +78,10 @@ class OWChat {
     } else {
       throw Exception('Failed to load models');
     }
+  }
+
+  void clear () {
+    _history = [];
   }
 }
 

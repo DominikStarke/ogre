@@ -56,7 +56,7 @@ class WindowControllerState extends State<WindowController> with TrayListener, W
 
   Future<void> _init () async {
     WidgetsFlutterBinding.ensureInitialized();
-    await hotKeyManager.unregisterAll();
+    await hotKeyManager.unregisterAll(); // Ensure no hotkeys are unregistered on hot reload
     await windowManager.ensureInitialized();
 
     windowManager.waitUntilReadyToShow(widget.windowOptions, () async {

@@ -6,14 +6,14 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 WindowOptions windowOptions = const WindowOptions(
-  size: Size(300, 60),
+  size: Size(800, 60),
   titleBarStyle: TitleBarStyle.hidden,
   alwaysOnTop: true,
   skipTaskbar: true,
   center: true,
   windowButtonVisibility: false,
-  maximumSize: Size(300, 60),
-  minimumSize: Size(300, 60),
+  maximumSize: Size(800, 60),
+  minimumSize: Size(800, 60),
 );
 
 class HotkeyEntry extends HotKey {
@@ -43,33 +43,8 @@ Menu getTrayMenuConfiguration (WindowControllerState controller) {
   return Menu(
     items: [
       MenuItem(
-        key: 'show_window',
-        label: 'Show Window',
-      ),
-      MenuItem(
-        key: 'hide_window',
-        label: 'Hide Window',
-      ),
-      MenuItem.separator(),
-      MenuItem.submenu(
-        label: 'Submenu',
-        submenu: Menu(
-          items: [
-            MenuItem(
-              type: 'checkbox',
-              key: 'submenu_item_1',
-              label: 'Submenu Item 1',
-            ),
-            MenuItem(
-              key: 'submenu_item_2',
-              label: 'Submenu Item 2',
-            ),
-          ]
-        )
-      ),
-      MenuItem(
         key: 'exit_app',
-        label: 'Exit App',
+        label: 'Exit',
         onClick: (menuItem) {
           controller.closeApplication();
         },
