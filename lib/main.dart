@@ -4,11 +4,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+// import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:gpt_markdown/theme.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:ogre/api/openwebui.dart';
 import 'package:ogre/config.dart';
 import 'package:ogre/controllers/window.dart';
+import 'package:ogre/text_markdown.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:keypress_simulator/keypress_simulator.dart';
 
@@ -25,6 +28,16 @@ class OgreApp extends StatelessWidget {
       appIcon: trayIcon,
       windowOptions: windowOptions,
       child: MaterialApp(
+        darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorSchemeSeed: Colors.blue,
+        extensions: [
+          GptMarkdownThemeData(
+
+            highlightColor: Colors.white,
+          ),
+        ]),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -46,7 +59,7 @@ class OgreHome extends StatefulWidget {
 
 class _OgreHomeState extends State<OgreHome> {
   ClipboardData? copyContext;
-  StringBuffer _responseBuffer = StringBuffer("");
+  TextEditingController _responseBuffer = TextEditingController();
   bool _showResponse = false;
   final TextEditingController promptInputController = TextEditingController();
   FocusNode? _searchInputFocusNode;
@@ -75,7 +88,7 @@ class _OgreHomeState extends State<OgreHome> {
 
   Future<void> onActivate (HotKey hotKey) async {
     if(await windowManager.isVisible()) {
-      closeWindow();
+      window.hide();
     } else {
       await Future.delayed(Duration(milliseconds: 20));
       await keyPressSimulator.simulateKeyDown(
@@ -100,7 +113,7 @@ class _OgreHomeState extends State<OgreHome> {
   clearWindow () {
     setState(() {
       _showResponse = false;
-      _responseBuffer = StringBuffer();
+      _responseBuffer.clear();
       chat.clear();
       promptInputController.clear();
 
@@ -111,17 +124,10 @@ class _OgreHomeState extends State<OgreHome> {
     });
   }
 
-  closeWindow () {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      window.hide();
-    });
-  }
-
-
   KeyEventResult handleKeyEvent (FocusNode node, KeyEvent event) {
     if (event.logicalKey == LogicalKeyboardKey.escape && event is KeyUpEvent) {
       clearWindow();
-      closeWindow();
+      window.hide();
       return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       return KeyEventResult.handled;
@@ -136,7 +142,7 @@ class _OgreHomeState extends State<OgreHome> {
 
   Future<void> submit () async {
     bool first = true;
-    _responseBuffer = StringBuffer();
+    _responseBuffer.clear();
     await for (var v in chat.chat('''### Context
 ${copyContext?.text ?? ''}
 
@@ -148,7 +154,7 @@ ${promptInputController.text}''')) {
       }
 
       setState(() {
-        _responseBuffer.write(v);
+        _responseBuffer.text += v;
         first = false;
       });
 
@@ -173,7 +179,7 @@ ${promptInputController.text}''')) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: ListView(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -186,18 +192,29 @@ ${promptInputController.text}''')) {
                   border: OutlineInputBorder(),
                   labelText: 'Prompt',
                 ),
+                
+
                 onChanged: (String value) async {
                         
                 },
               ),
             ),
           ),
-          if (_showResponse)
-            SizedBox(
-              width: 800,
-              height: 540,
-              child: Markdown(data: _responseBuffer.toString()),
-            ),
+
+          if (_showResponse) TexMarkdown(
+            _responseBuffer.text,
+            latexBuilder: latexBuilder,
+            latexWorkaround: latexWorkaround,
+            sourceTagBuilder: sourceTagBuilder,
+
+          ),
+
+          // if (_showResponse)
+          //   SizedBox(
+          //     width: 800,
+          //     height: 540,
+          //     child: Markdown(data: _responseBuffer.toString()),
+          //   ),
         ],
       ),
     );
