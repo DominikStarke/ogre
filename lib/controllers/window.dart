@@ -15,7 +15,7 @@ class WindowController extends StatefulWidget {
   final void Function()? onWindowClose;
   final Future<void> Function(MenuItem menuItem)? onTrayMenuItemClick;
   final WindowOptions? windowOptions;
-  final List<HotkeyEntry> hotkeys = const [];
+  final List<HotkeyEntry> hotkeys;
   final Function(WindowControllerState)? getTrayMenuConfiguration;
   final String appIcon;
 
@@ -29,6 +29,7 @@ class WindowController extends StatefulWidget {
     this.onTrayMenuItemClick,
     this.windowOptions,
     this.getTrayMenuConfiguration,
+    this.hotkeys = const [],
     required this.appIcon,
   });
 
@@ -68,7 +69,7 @@ class WindowControllerState extends State<WindowController> with TrayListener, W
     await _setTrayConfiguration();
     
     for (var hotkey in widget.hotkeys) {
-      await hotKeyManager.register(hotkey);
+      hotkey.register();
     }
   }
 

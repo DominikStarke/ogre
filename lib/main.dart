@@ -4,9 +4,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:ogre/api/openwebui.dart';
 import 'package:ogre/config.dart';
 import 'package:ogre/controllers/window.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:keypress_simulator/keypress_simulator.dart';
 
 void main() {
   runApp(const OgreApp());
@@ -20,8 +23,19 @@ class OgreApp extends StatelessWidget {
       getTrayMenuConfiguration: getTrayMenuConfiguration,
       appIcon: trayIcon,
       windowOptions: windowOptions,
+      hotkeys: [
+        HotkeyEntry(
+          key: LogicalKeyboardKey.home,
+          modifiers: [HotKeyModifier.shift],
+          scope: HotKeyScope.system,
+          onUp: (key) {
+            windowManager.show();
+          }
+        ),
+
+      ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
@@ -71,19 +85,29 @@ class _OgreHomeState extends State<OgreHome> {
   }
 
   Future<void> submit () async {
+    await for (var v in chat.chat(searchInputController.text)) {
+      await Clipboard.setData(ClipboardData(text: v));
+      await Future.delayed(Duration(milliseconds: 20));
+      await keyPressSimulator.simulateKeyDown(
+        PhysicalKeyboardKey.keyV,
+        [ModifierKey.metaModifier],
+      );
+      await Future.delayed(Duration(milliseconds: 20));
+      await keyPressSimulator.simulateKeyUp(
+        PhysicalKeyboardKey.keyV,
+        [ModifierKey.metaModifier],
+      );
+      await Future.delayed(Duration(milliseconds: 20));
+    }
+  }
 
-    // await for (final message in chat.chat(searchInputController.text)) {
-    //   stdout.write(message);
-    //   stdout.flush();
-    // }
-
-    // stdout.addStream(Stream<List<int>>.fromIterable([
-    //   utf8.encode('Your message'),
-    // ]));
-
-    await stdout.addStream(chat.chat(searchInputController.text).map((v) => utf8.encode(v)));
-    stdout.write('\n');
-    await stdout.flush();
+  PhysicalKeyboardKey getKeyFromChar(String char) {
+    switch (char) {
+      case 'a': return PhysicalKeyboardKey.keyA;
+      case 'b': return PhysicalKeyboardKey.keyB;
+      // Add cases for other characters as needed
+      default: return PhysicalKeyboardKey.space;
+    }
   }
 
   @override
@@ -96,7 +120,7 @@ class _OgreHomeState extends State<OgreHome> {
           focusNode: searchInputFocusNode,
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
-            labelText: 'Enter a search term',
+            labelText: 'Prompt',
           ),
           onChanged: (String value) async {
 

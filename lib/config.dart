@@ -21,12 +21,12 @@ class HotkeyEntry extends HotKey {
   final Function(HotKey)? onDown;
   
   HotkeyEntry({
-    required LogicalKeyboardKey super.key,
+    required LogicalKeyboardKey key,
     super.modifiers,
     super.scope,
     this.onUp,
     this.onDown
-  });
+  }): super (key: key);
 
   register() {
     hotKeyManager.register(this, keyDownHandler: onDown, keyUpHandler: onUp);
