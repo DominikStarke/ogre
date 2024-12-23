@@ -3,8 +3,12 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  file_selector_windows
+  firebase_auth
+  firebase_core
   hotkey_manager_windows
   keypress_simulator_windows
+  record_windows
   screen_retriever_windows
   tray_manager
   window_manager
