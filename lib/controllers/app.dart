@@ -30,7 +30,7 @@ class AppController extends StatefulWidget {
   }
 }
 
-class AppControllerState extends State<AppController> with TrayListener, WindowListener, ChangeNotifier {
+class AppControllerState extends State<AppController> with TrayListener, WindowListener, ChangeNotifier, WidgetsBindingObserver {
   bool _initialized = false;
   ClipboardData? clipboardData;
 
@@ -49,6 +49,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   initState() {
     trayManager.addListener(this);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _init();
   }
 
@@ -111,6 +112,14 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
 
   Future<void> hide() async {
     await windowManager.hide();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if(state == AppLifecycleState.inactive) {
+      windowManager.hide();
+    }
   }
 
   @override
