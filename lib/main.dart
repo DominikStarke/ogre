@@ -18,6 +18,12 @@ class OgreApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppController(
+      loading: const Material(
+        color: Colors.white,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
       child: LlmController(
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

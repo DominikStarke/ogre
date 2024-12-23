@@ -12,10 +12,12 @@ import 'package:window_manager/window_manager.dart';
 
 class AppController extends StatefulWidget {
   final Widget child;
+  final Widget? loading;
 
   const AppController({
     super.key,
     required this.child,
+    this.loading
   });
 
   @override
@@ -30,7 +32,7 @@ class AppController extends StatefulWidget {
   }
 }
 
-class AppControllerState extends State<AppController> with TrayListener, WindowListener, ChangeNotifier, WidgetsBindingObserver {
+class AppControllerState extends State<AppController> with TrayListener, WindowListener, WidgetsBindingObserver {
   bool _initialized = false;
   ClipboardData? clipboardData;
 
@@ -68,7 +70,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
       key: LogicalKeyboardKey.home,
       modifiers: [HotKeyModifier.shift],
       scope: HotKeyScope.system,
-      onUp: onActivate
+      onUp: _onActivate
     ).register();
     setState(() {
       _initialized = true;
@@ -89,7 +91,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     ));
   }
 
-  Future<void> onActivate (HotKey hotKey) async {
+  Future<void> _onActivate (HotKey hotKey) async {
     if(await windowManager.isVisible()) {
       hide();
     } else {
@@ -165,7 +167,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     if(_initialized) {
       return widget.child;
     } else {
-      return Container();
+      return widget.loading ?? Container();
     }
   }
 }
