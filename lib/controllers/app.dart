@@ -142,11 +142,8 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   }
 
   @override
-  void onTrayIconRightMouseUp() {
-    trayManager.popUpContextMenu();
-    // if (widget.onTrayIconRightMouseUp != null) {
-    //   widget.onTrayIconRightMouseUp!();
-    // }
+  Future<void> onTrayIconRightMouseUp() async {
+    await trayManager.popUpContextMenu();
   }
 
   @override
