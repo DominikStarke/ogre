@@ -1,40 +1,21 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
-import 'package:ogre/controllers/app.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:ogre/controllers/llm_controller.dart';
 
 class OgreChat extends StatelessWidget {
   const OgreChat({super.key});
-  Stream<String> clipboardAttachmentSender (AppControllerState controller, String prompt, {required Iterable<Attachment> attachments}) async* {
-    if (controller.clipboardData != null) {
-      final fileAttachment = FileAttachment(
-        name: 'clipboardData',
-        mimeType: 'text/plain',
-        bytes: Uint8List.fromList(utf8.encode(controller.clipboardData?.text ?? '')),
-      );
-      controller.clipboardData = null;
-      yield* controller.llmProvider.sendMessageStream(
-        prompt,
-        attachments: [...attachments, fileAttachment],
-      );
-    } else {
-      yield* controller.llmProvider.sendMessageStream(prompt, attachments: attachments);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final controller = AppController.of(context);
+    final controller = LlmController.of(context);
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
         final scheme = Theme.of(context).colorScheme;
         final buttonTheme = Theme.of(context).buttonTheme;
         return LlmChatView(
-          messageSender: (prompt, {required attachments}) => clipboardAttachmentSender(controller, prompt, attachments: attachments),
+          messageSender: controller.clipboardAttachmentSender,
           provider: controller.llmProvider,
           style: LlmChatViewStyle(
             backgroundColor: scheme.surfaceContainerLowest,

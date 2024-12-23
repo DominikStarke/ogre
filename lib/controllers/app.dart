@@ -3,12 +3,10 @@ import 'dart:io' show exit;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:keypress_simulator/keypress_simulator.dart';
-import 'package:ogre/llm_providers/openwebui.dart';
-import 'package:ogre/config.dart';
+import 'package:ogre/helpers/hotkey_entry.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -47,12 +45,6 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     minimumSize: Size(800, 600),
   );
 
-  late LlmProvider llmProvider = OpenwebuiProvider(
-    host: 'http://localhost:3000',
-    model: 'llama3.1:latest',
-    apiKey: dotenv.get('OPENWEBUI_API_KEY'),
-  );
-
   @override
   initState() {
     trayManager.addListener(this);
@@ -80,15 +72,6 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     setState(() {
       _initialized = true;
     });
-  }
-
-  clearChat() {
-    llmProvider = OpenwebuiProvider(
-      host: 'http://localhost:3000',
-      model: 'qwen2.5:latest',
-      apiKey: dotenv.get('OPENWEBUI_API_KEY'),
-    );
-    notifyListeners();
   }
 
   Future<void> _setTrayConfiguration () async {

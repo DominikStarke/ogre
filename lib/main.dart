@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ogre/controllers/app.dart';
+import 'package:ogre/controllers/llm_controller.dart';
+
 import 'package:ogre/screens/chat.dart';
-import 'package:ogre/screens/settings.dart';
+// import 'package:ogre/screens/settings.dart';
 
 void main() async {
   runApp(const OgreApp());
-}
-
-class _CustomFloatingActionButtonLocation implements FloatingActionButtonLocation {
-  final double x;
-  final double y;
-  const _CustomFloatingActionButtonLocation(this.x, this.y);
-
-  @override
-  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-    return Offset(x, y);
-  }
 }
 
 class OgreApp extends StatelessWidget {
@@ -26,21 +17,23 @@ class OgreApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppController(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: scheme,
-        ),
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          brightness: Brightness.dark,
-          colorScheme: scheme,
-        ),
-        home: const Scaffold(
-          floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
-          floatingActionButton: FloatingPopupMenuButton(),
-          body: OgreChat()
+      child: LlmController(
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: scheme,
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.dark,
+            colorScheme: scheme,
+          ),
+          home: const Scaffold(
+            floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
+            floatingActionButton: FloatingPopupMenuButton(),
+            body: OgreChat()
+          ),
         ),
       ),
     );
@@ -63,7 +56,7 @@ class FloatingPopupMenuButton extends StatelessWidget {
           if(result == 'go_to_settings') {
             // Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings()));
           } else if(result == 'clear_chat') {
-            AppController.of(context).clearChat();
+            LlmController.of(context).clearChat();
           }
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
