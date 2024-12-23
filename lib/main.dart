@@ -13,7 +13,8 @@ void main() async {
 class OgreApp extends StatelessWidget {
   const OgreApp({super.key});
 
-  get scheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark);
+  get darkScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark);
+  get lightScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.light);
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +30,11 @@ class OgreApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
-            colorScheme: scheme,
+            colorScheme: lightScheme,
           ),
           darkTheme: ThemeData(
             useMaterial3: true,
-            brightness: Brightness.dark,
-            colorScheme: scheme,
+            colorScheme: darkScheme,
           ),
           home: const OgreChat(),
           routes: {

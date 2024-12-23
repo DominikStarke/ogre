@@ -35,7 +35,8 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
     chatInputStyle: ChatInputStyle(
       backgroundColor: theme.scaffoldBackgroundColor,
       decoration: BoxDecoration(
-        border: Border.all(color: scheme.surfaceBright, width: 2),
+        color: scheme.surfaceContainerLowest,
+        border: Border.all(color: scheme.surfaceContainer, width: 2),
         borderRadius: BorderRadius.circular(20),
       ),
       textStyle: TextStyle(color: scheme.onSurface),
@@ -140,7 +141,19 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
     actionButtonBarDecoration: BoxDecoration(
       color: theme.scaffoldBackgroundColor,
     ),
-    fileAttachmentStyle: const FileAttachmentStyle(),
+    fileAttachmentStyle: FileAttachmentStyle(
+      decoration: BoxDecoration(
+        color: scheme.secondary,
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+      ),
+      filenameStyle: TextStyle(color: scheme.onSecondary),
+      filetypeStyle: TextStyle(color: scheme.onSecondary.withValues(alpha: .5)),
+      iconDecoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        shape: BoxShape.circle,
+      ),
+      iconColor: scheme.onSurface,
+    ),
     suggestionStyle: SuggestionStyle(
       decoration: BoxDecoration(
         color: scheme.onError,
