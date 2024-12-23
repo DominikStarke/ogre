@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ogre/controllers/llm_controller.dart';
+import 'package:ogre/controllers/llm.dart';
 
 class AppMenu extends StatelessWidget {
   const AppMenu({super.key});

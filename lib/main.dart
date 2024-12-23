@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ogre/controllers/app.dart';
-import 'package:ogre/controllers/llm_controller.dart';
+import 'package:ogre/controllers/llm.dart';
 
 import 'package:ogre/screens/chat.dart';
 import 'package:ogre/screens/settings.dart';

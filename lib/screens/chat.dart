@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
-import 'package:ogre/controllers/llm_controller.dart';
+import 'package:ogre/controllers/llm.dart';
 import 'package:ogre/theme/material_chat.dart';
 import 'package:ogre/widgets/app_menu.dart';
 
