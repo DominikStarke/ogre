@@ -23,10 +23,14 @@ class LlmController extends StatefulWidget {
   }
 }
 
-class LlmControllerState extends State<LlmController> with ChangeNotifier {
+class LlmControllerState extends State<LlmController> {
+  ValueNotifier<LlmProvider>? _notifier;
+  ValueNotifier<LlmProvider> get notifier {
+    _notifier = _notifier ?? ValueNotifier<LlmProvider>(llmProvider);
+    return _notifier!;
+  }
 
   LlmProvider? _llmProvider;
-
   LlmProvider get llmProvider {
     _llmProvider = _llmProvider ?? OpenwebuiProvider(
       host: 'http://localhost:3000',
@@ -38,7 +42,7 @@ class LlmControllerState extends State<LlmController> with ChangeNotifier {
 
   void clearChat () {
     _llmProvider = null;
-    notifyListeners();
+    notifier.value = llmProvider;
   }
 
   Stream<String> clipboardAttachmentSender (String prompt, {required Iterable<Attachment> attachments}) async* {
@@ -57,6 +61,12 @@ class LlmControllerState extends State<LlmController> with ChangeNotifier {
     } else {
       yield* llmProvider.sendMessageStream(prompt, attachments: attachments);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    notifier.dispose();
   }
 
   @override
