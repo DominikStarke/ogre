@@ -3,6 +3,7 @@ import 'package:ogre/controllers/app.dart';
 import 'package:ogre/controllers/llm_controller.dart';
 
 import 'package:ogre/screens/chat.dart';
+import 'package:ogre/screens/settings.dart';
 // import 'package:ogre/screens/settings.dart';
 
 void main() async {
@@ -29,47 +30,11 @@ class OgreApp extends StatelessWidget {
             brightness: Brightness.dark,
             colorScheme: scheme,
           ),
-          home: const Scaffold(
-            floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
-            floatingActionButton: FloatingPopupMenuButton(),
-            body: OgreChat()
-          ),
+          home: const OgreChat(),
+          routes: {
+            '/settings': (context) => const Settings(),
+          },
         ),
-      ),
-    );
-  }
-}
-
-class FloatingPopupMenuButton extends StatelessWidget {
-  const FloatingPopupMenuButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: PopupMenuButton<String>(
-        style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerLowest.withValues(alpha: .5)),
-        ),
-        onSelected: (String result) {
-          if(result == 'go_to_settings') {
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings()));
-          } else if(result == 'clear_chat') {
-            LlmController.of(context).clearChat();
-          }
-        },
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-          const PopupMenuItem<String>(
-            value: 'go_to_settings',
-            child: Text('Settings'),
-          ),
-          PopupMenuItem<String>(
-            value: 'clear_chat',
-            child: Text('Clear chat', style: TextStyle(color: scheme.error)),
-          ),
-        ],
-        icon: const Icon(Icons.more_vert),
       ),
     );
   }
