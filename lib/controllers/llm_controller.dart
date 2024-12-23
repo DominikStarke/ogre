@@ -47,7 +47,7 @@ class LlmControllerState extends State<LlmController> {
 
   Stream<String> clipboardAttachmentSender (String prompt, {required Iterable<Attachment> attachments}) async* {
     final controller = AppController.of(context);
-    if (controller.clipboardData != null) {
+    if (controller.clipboardData != null && attachments.isEmpty) {
       final fileAttachment = FileAttachment(
         name: 'clipboardData',
         mimeType: 'text/plain',
@@ -59,6 +59,7 @@ class LlmControllerState extends State<LlmController> {
         attachments: [...attachments, fileAttachment],
       );
     } else {
+      controller.clipboardData = null;
       yield* llmProvider.sendMessageStream(prompt, attachments: attachments);
     }
   }
