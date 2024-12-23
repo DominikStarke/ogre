@@ -16,13 +16,14 @@ class OgreChat extends StatelessWidget {
       body: ListenableBuilder(
         listenable: controller,
         builder: (context, _) {
-          final scheme = Theme.of(context).colorScheme;
-          final buttonTheme = Theme.of(context).buttonTheme;
+          final theme = Theme.of(context);
+          final scheme = theme.colorScheme;
+          final buttonTheme = theme.buttonTheme;
           return LlmChatView(
             messageSender: controller.clipboardAttachmentSender,
             provider: controller.llmProvider,
             style: LlmChatViewStyle(
-              backgroundColor: scheme.surfaceContainerLowest,
+              backgroundColor: theme.scaffoldBackgroundColor,
               progressIndicatorColor: scheme.onPrimaryContainer,
               userMessageStyle: UserMessageStyle(
                 decoration: BoxDecoration(
@@ -44,10 +45,10 @@ class OgreChat extends StatelessWidget {
                     bottomRight: Radius.circular(20)
                   ),
                 ),
-                markdownStyle: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                markdownStyle: MarkdownStyleSheet.fromTheme(theme)
               ),
               chatInputStyle: ChatInputStyle(
-                backgroundColor: scheme.surfaceContainerLowest,
+                backgroundColor: theme.scaffoldBackgroundColor,
                 decoration: BoxDecoration(
                   border: Border.all(color: scheme.surfaceBright, width: 2),
                   borderRadius: BorderRadius.circular(20),
@@ -152,7 +153,7 @@ class OgreChat extends StatelessWidget {
                 ),
               ),
               actionButtonBarDecoration: BoxDecoration(
-                color: scheme.surfaceContainerLowest,
+                color: theme.scaffoldBackgroundColor,
               ),
               fileAttachmentStyle: const FileAttachmentStyle(),
               suggestionStyle: SuggestionStyle(
