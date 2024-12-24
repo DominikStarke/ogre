@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:keypress_simulator/keypress_simulator.dart';
 import 'package:ogre/controllers/llm.dart';
-import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/helpers/hotkey_entry.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
