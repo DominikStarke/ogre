@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show exit;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -57,6 +58,11 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
 
   Future<void> _init () async {
     WidgetsFlutterBinding.ensureInitialized();
+    if(kIsWeb) {
+      return setState(() {
+        _initialized = true;
+      });
+    }
     await hotKeyManager.unregisterAll(); // Ensure no hotkeys are unregistered on hot reload
     await windowManager.ensureInitialized();
     await trayManager.setIcon('assets/app_icon.png');

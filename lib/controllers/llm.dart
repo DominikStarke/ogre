@@ -35,7 +35,9 @@ class LlmControllerState extends State<LlmController> {
   LlmProvider? _llmProvider;
   LlmProvider? get llmProvider => _llmProvider;
 
-  final _storage = LlmConfigStore();
+  LlmConfigStore get _storage => LlmConfigStore(
+    platform: Theme.of(context).platform,
+  );
 
   Future<LlmConfigStoreModel> getConfig () async {
     return await _storage.load();

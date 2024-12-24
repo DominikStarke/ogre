@@ -1,16 +1,18 @@
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:io' show Platform;
-
 import 'package:ogre/llm_providers/const.dart';
 
-
 class LlmConfigStore {
+  TargetPlatform platform;
+  LlmConfigStore({
+    required this.platform
+  });
+
   final String _storeKey = "llm_config_store";
   FlutterSecureStorage? __storage;
   FlutterSecureStorage get _storage {
-    __storage = __storage ?? FlutterSecureStorage(aOptions: Platform.isAndroid
+    __storage = __storage ?? FlutterSecureStorage(aOptions: platform == TargetPlatform.android
       ? const AndroidOptions(encryptedSharedPreferences: true)
       : AndroidOptions.defaultOptions
     );
