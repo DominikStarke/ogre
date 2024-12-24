@@ -98,7 +98,7 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
   /// The [history] parameter is an optional iterable of [ChatMessage] objects
   /// representing the chat history
   /// The [model] parameter is the ai model to be used for the chat.
-  /// The [host] parameter is the host of the open-webui server.
+  /// The [baseUrl] parameter is the host of the open-webui server.
   /// For example port 3000 on localhost use 'http://localhost:3000'
   /// The [apiKey] parameter is the API key for the open-webui server.
   /// See the [docs](https://docs.openwebui.com/) for more information.
@@ -116,11 +116,11 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
   OpenwebuiProvider({
     Iterable<ChatMessage>? history,
     required String model,
-    required String host,
+    required String baseUrl,
     String? apiKey,
   }): _history = history?.toList() ?? [],
       _model = model,
-      _host = host,
+      _host = baseUrl,
       _apiKey = apiKey;
 
   final List<ChatMessage> _history;
@@ -175,7 +175,7 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
       }
     }
 
-    final httpRequest = http.Request('POST', Uri.parse("$_host/api/chat/completions"))
+    final httpRequest = http.Request('POST', Uri.parse("$_host/chat/completions"))
       ..headers.addAll({
         if(_apiKey != null) 'Authorization': 'Bearer $_apiKey',
         'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
       throw Exception('Unsupported attachment type');
     }
 
-    final uri = Uri.parse('$_host/api/v1/files/'); // Replace with your OpenWebUI endpoint
+    final uri = Uri.parse('$_host/v1/files/'); // Replace with your OpenWebUI endpoint
     final request = http.MultipartRequest('POST', uri)
       ..headers.addAll({
         if(_apiKey != null) 'Authorization': 'Bearer $_apiKey',

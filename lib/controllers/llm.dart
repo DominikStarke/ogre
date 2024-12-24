@@ -54,7 +54,7 @@ class LlmControllerState extends State<LlmController> {
   void _configure (LlmConfigStoreModel config) {
     if (config.defaultProvider == LlmProviderType.openwebui) {
       _llmProvider = OpenwebuiProvider(
-        host: config.owuiHost,
+        baseUrl: config.owuiHost,
         model: config.owuiModel,
         apiKey: config.owuiApiKey,
       );
