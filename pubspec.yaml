@@ -1,6 +1,8 @@
 name: ogre
 description: "AI assistant for your desktop."
 publish_to: 'none'
+repository: https://github.com/DominikStarke/ogre/
+issue_tracker: https://github.com/DominikStarke/ogre/issues
 
 version: 1.0.0+1
 
@@ -19,11 +21,10 @@ dependencies:
 
   http: ^1.2.2
   flutter_dotenv: ^5.2.1
-  flutter_ai_toolkit:
-    git:
-      url: https://github.com/flutter/ai.git
-      ref: main
-  flutter_markdown: ^0.7.4+3
+  flutter_ai_toolkit: ^0.6.7
+  flutter_ai_providers:
+    path: ./packages/third_party/flutter_ai_community/packages/flutter_ai_providers
+  flutter_markdown: ^0.7.4+3 # fulfill trailing dependency
 
 dev_dependencies:
   flutter_test:
@@ -32,17 +33,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
   assets:
     - .env
     - assets/app_icon.png

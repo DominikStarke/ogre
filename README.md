@@ -16,9 +16,9 @@ https://github.com/user-attachments/assets/2e2904f9-ad0c-469b-a5b5-52d482631c5f
 ### Setup
 As of now only openwebui is supported as endpoint.
 
-Clone the repository:
+Clone the repository and its 3rd party dependency (flutter_ai_community):
 ```bash
-git clone https://github.com/DominikStarke/ogre.git
+git clone https://github.com/DominikStarke/ogre.git --recurse-submodules
 ``` 
 Create a .env file in the project root
 ```

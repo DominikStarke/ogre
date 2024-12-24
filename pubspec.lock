@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.48"
+  anthropic_sdk_dart:
+    dependency: transitive
+    description:
+      name: anthropic_sdk_dart
+      sha256: "3157e552ee092fc5852d702e879ecd5bad9941136668620d961141b209b952e3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0+1"
   args:
     dependency: transitive
     description:
@@ -129,6 +137,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  fetch_api:
+    dependency: transitive
+    description:
+      name: fetch_api
+      sha256: "97f46c25b480aad74f7cc2ad7ccba2c5c6f08d008e68f95c1077286ce243d0e6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
+  fetch_client:
+    dependency: transitive
+    description:
+      name: fetch_client
+      sha256: "9666ee14536778474072245ed5cba07db81ae8eb5de3b7bf4a2d1e2c49696092"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
   ffi:
     dependency: transitive
     description:
@@ -294,15 +318,21 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_ai_providers:
+    dependency: "direct main"
+    description:
+      path: "packages/third_party/flutter_ai_community/packages/flutter_ai_providers"
+      relative: true
+    source: path
+    version: "0.0.1-dev.1"
   flutter_ai_toolkit:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: b1fbc7c8dfc6b1b0dc7c2485b4ea2f3d99befa32
-      url: "https://github.com/flutter/ai.git"
-    source: git
-    version: "0.6.8-wip"
+      name: flutter_ai_toolkit
+      sha256: "77e69d195f1c8939c7790a7f74ba998881582fa0dc312746d73c4365f705512c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.7"
   flutter_context_menu:
     dependency: transitive
     description:
@@ -361,6 +391,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  freezed_annotation:
+    dependency: transitive
+    description:
+      name: freezed_annotation
+      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.4"
   gap:
     dependency: transitive
     description:
@@ -625,6 +663,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  ollama_dart:
+    dependency: transitive
+    description:
+      name: ollama_dart
+      sha256: "4e40bc499b6fe46ba54a004d2da601c40bd73d66e3f18cf7b03225ccf3d481a6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2+1"
+  openai_dart:
+    dependency: transitive
+    description:
+      name: openai_dart
+      sha256: "1cc5ed0915fa7572b943de01cfa7a3e5cfe1e6a7f4d0d9a9374d046518e84575"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.5"
   path:
     dependency: transitive
     description:
