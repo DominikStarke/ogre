@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ogre/controllers/app.dart';
-import 'package:ogre/controllers/llm.dart';
 
 import 'package:ogre/screens/chat.dart';
 import 'package:ogre/screens/settings.dart';
-// import 'package:ogre/screens/settings.dart';
 
 void main() async {
   runApp(const OgreApp());
@@ -25,22 +23,20 @@ class OgreApp extends StatelessWidget {
           child: CircularProgressIndicator(),
         ),
       ),
-      child: LlmController(
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: lightScheme,
-          ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            colorScheme: darkScheme,
-          ),
-          home: const OgreChat(),
-          routes: {
-            '/settings': (context) => const Settings(),
-          },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: lightScheme,
         ),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: darkScheme,
+        ),
+        home: const OgreChat(),
+        routes: {
+          '/settings': (context) => const Settings(),
+        },
       ),
     );
   }

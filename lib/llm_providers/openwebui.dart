@@ -139,9 +139,9 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
     final userMessage = ChatMessage(text: prompt, attachments: attachments, origin: MessageOrigin.user);
     final llmMessage = ChatMessage(text: "", attachments: [], origin: MessageOrigin.llm);
     _history.addAll([userMessage, llmMessage]);
-
     
     final stream = _generateStream([userMessage]);
+    
     yield* stream.map((chunk) {
       llmMessage.append(chunk);
       return chunk;
@@ -157,8 +157,6 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
     final userMessage = ChatMessage(text: prompt, attachments: attachments, origin: MessageOrigin.user);
     final llmMessage = ChatMessage(text: null, attachments: [], origin: MessageOrigin.llm);
     _history.addAll([userMessage, llmMessage]);
-
-
 
     final stream = _generateStream(_history);
 

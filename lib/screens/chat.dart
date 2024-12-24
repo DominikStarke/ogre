@@ -15,11 +15,17 @@ class OgreChat extends StatelessWidget {
       floatingActionButton: const AppMenu(),
       body: ListenableBuilder(
         listenable: controller.notifier,
-        builder: (context, _) => LlmChatView(
-          messageSender: controller.clipboardAttachmentSender,
-          provider: controller.llmProvider,
-          style: materialChatThemeOf(context),
-        )
+        builder: (context, _) {
+          if(controller.llmProvider == null) {
+            return const Text("No provider selected. Go to settings and configure your AI provider.");
+          } else {
+            return LlmChatView(
+              messageSender: controller.clipboardAttachmentSender,
+              provider: controller.llmProvider!,
+              style: materialChatThemeOf(context),
+            );
+          }
+        } 
       ),
     );
   }

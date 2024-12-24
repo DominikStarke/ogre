@@ -3,9 +3,10 @@ import 'dart:io' show exit;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:keypress_simulator/keypress_simulator.dart';
+import 'package:ogre/controllers/llm.dart';
+import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/helpers/hotkey_entry.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -57,7 +58,6 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
 
   Future<void> _init () async {
     WidgetsFlutterBinding.ensureInitialized();
-    await dotenv.load(fileName: ".env");
     await hotKeyManager.unregisterAll(); // Ensure no hotkeys are unregistered on hot reload
     await windowManager.ensureInitialized();
     await trayManager.setIcon('assets/app_icon.png');
@@ -120,7 +120,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if(state == AppLifecycleState.inactive) {
-      windowManager.hide();
+      // windowManager.hide();
     }
   }
 
@@ -165,7 +165,9 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   @override
   Widget build(BuildContext context) {
     if(_initialized) {
-      return widget.child;
+      return LlmController(
+        child: widget.child
+      );
     } else {
       return widget.loading ?? Container();
     }
