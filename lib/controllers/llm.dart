@@ -39,18 +39,18 @@ class LlmControllerState extends State<LlmController> {
   LlmProvider _llmProvider = EchoProvider();
   LlmProvider? get llmProvider => _llmProvider;
 
-  final _storage = LlmConfigStore();
+  final _configStore = LlmConfigStore();
 
   Future<void> loadConfigs () async {
     _configs.clear();
-    _configs.addAll(await _storage.loadAll());
+    _configs.addAll(await _configStore.loadAll());
     configure(selectedConfig);
   }
 
   Future<void> saveConfigs (List<LlmConfigStoreModel> configs) async {
     _configs.clear();
     _configs.addAll(configs);
-    await _storage.saveAll(configs);
+    await _configStore.saveAll(configs);
     configure(selectedConfig);
   }
 
@@ -71,17 +71,24 @@ class LlmControllerState extends State<LlmController> {
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
+        headers: config.header,
+        organization: config.organization,
+        queryParams: config.queryParams,
       );
     } else if (config.provider == LlmProviderType.anthropic) {
       _llmProvider = AnthropicProvider(
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
+        headers: config.header,
+        queryParams: config.queryParams,
       );
     } else if (config.provider == LlmProviderType.ollama) {
       _llmProvider = OllamaProvider(
         baseUrl: config.host,
         model: config.model,
+        headers: config.header,
+        queryParams: config.queryParams,
       );
     }
 

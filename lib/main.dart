@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ogre/controllers/app.dart';
+import 'package:ogre/controllers/llm.dart';
 
 import 'package:ogre/screens/chat.dart';
 import 'package:ogre/screens/settings.dart';
@@ -43,8 +44,10 @@ class OgreApp extends StatelessWidget {
         loading: Center(
           child: CircularProgressIndicator(),
         ),
-        child: Navigator(
-          onGenerateRoute: onGenerateRoute,
+        child: LlmController(
+          child: Navigator(
+            onGenerateRoute: onGenerateRoute,
+          ),
         ),
       ),
     );

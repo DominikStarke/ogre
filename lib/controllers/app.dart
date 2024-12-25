@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:keypress_simulator/keypress_simulator.dart';
-import 'package:ogre/controllers/llm.dart';
 import 'package:ogre/helpers/hotkey_entry.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -37,7 +36,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   bool _initialized = false;
   ClipboardData? clipboardData;
 
-  final WindowOptions windowOptions = const WindowOptions(
+  final WindowOptions _windowOptions = const WindowOptions(
     size: Size(800, 600),
     titleBarStyle: TitleBarStyle.hidden,
     alwaysOnTop: true,
@@ -67,7 +66,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     await windowManager.ensureInitialized();
     await trayManager.setIcon('assets/app_icon.png');
     await _setTrayConfiguration();
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
+    windowManager.waitUntilReadyToShow(_windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
     });
@@ -98,7 +97,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
 
   Future<void> _onActivate (HotKey hotKey) async {
     if(await windowManager.isVisible()) {
-      hide();
+      _hide();
     } else {
       await Future.delayed(const Duration(milliseconds: 20));
       await keyPressSimulator.simulateKeyDown(
@@ -117,7 +116,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     }
   }
 
-  Future<void> hide() async {
+  Future<void> _hide() async {
     await windowManager.hide();
   }
 
@@ -170,9 +169,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   @override
   Widget build(BuildContext context) {
     if(_initialized) {
-      return LlmController(
-        child: widget.child
-      );
+      return widget.child;
     } else {
       return widget.loading ?? Container();
     }

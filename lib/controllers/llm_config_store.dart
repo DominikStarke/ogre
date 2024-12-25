@@ -44,6 +44,9 @@ class LlmConfigStoreModel {
   String apiKey;
   bool isDefault;
   String name;
+  Map<String, String>? header;
+  String? organization;
+  Map<String, String>? queryParams;
 
   LlmConfigStoreModel({
     this.provider = LlmProviderType.none,
@@ -52,6 +55,9 @@ class LlmConfigStoreModel {
     this.apiKey = "",
     this.isDefault = false,
     this.name = "Default Configuration",
+    this.header,
+    this.organization,
+    this.queryParams,
   });
 
   static LlmConfigStoreModel fromJson(Map<String, dynamic> json) {
@@ -62,6 +68,9 @@ class LlmConfigStoreModel {
       apiKey: json['apiKey'] ?? "",
       isDefault: json['isDefault'] ?? false,
       name: json['name'] ?? "Default Configuration",
+      header: (json['header'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as String)),
+      organization: json['organization'],
+      queryParams: (json['queryParams'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as String)),
     );
   }
 
@@ -73,6 +82,9 @@ class LlmConfigStoreModel {
       'apiKey': apiKey,
       'isDefault': isDefault,
       'name': name,
+      'header': header,
+      'organization': organization,
+      'queryParams': queryParams,
     };
   }
 }
