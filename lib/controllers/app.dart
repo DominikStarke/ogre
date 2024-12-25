@@ -125,7 +125,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if(state == AppLifecycleState.inactive) {
-      windowManager.hide();
+      // windowManager.hide();
     }
   }
 

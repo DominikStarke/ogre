@@ -17,7 +17,9 @@ class OgreChat extends StatelessWidget {
         listenable: controller.notifier,
         builder: (context, _) {
           if(controller.llmProvider == null) {
-            return const Text("No provider selected. Go to settings and configure your AI provider.");
+            return const Center(
+              child: Text("No provider selected. Go to settings and configure your AI provider.")
+            );
           } else {
             return LlmChatView(
               messageSender: controller.clipboardAttachmentSender,

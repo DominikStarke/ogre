@@ -113,6 +113,11 @@ class LlmControllerState extends State<LlmController> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadAndConfigure();
   }
 

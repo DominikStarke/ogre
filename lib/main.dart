@@ -14,29 +14,41 @@ class OgreApp extends StatelessWidget {
   get darkScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark);
   get lightScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.light);
 
+  static Route<dynamic>? onGenerateRoute (settings) {
+    if(settings.name == '/settings') {
+      return MaterialPageRoute(
+        builder: (context) => const Settings(),
+      );
+    } else {
+      return MaterialPageRoute(
+        builder: (context) => const OgreChat(),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AppController(
-      loading: const Material(
-        color: Colors.white,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: lightScheme,
       ),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: lightScheme,
+      title: "Ogre",
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: darkScheme,
+      ),
+      home: const AppController(
+        loading: Material(
+          color: Colors.white,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          colorScheme: darkScheme,
+        child: Navigator(
+          onGenerateRoute: onGenerateRoute,
         ),
-        home: const OgreChat(),
-        routes: {
-          '/settings': (context) => const Settings(),
-        },
       ),
     );
   }
