@@ -4,7 +4,7 @@ import 'package:ogre/controllers/llm.dart';
 
 import 'package:ogre/screens/chat.dart';
 import 'package:ogre/screens/settings.dart';
-import 'package:ogre/widgets/theme.dart';
+import 'package:ogre/theme/theme.dart';
 
 void main() async {
   runApp(const OgreApp());

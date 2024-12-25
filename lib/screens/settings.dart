@@ -135,22 +135,22 @@ class _SettingsState extends State<Settings> {
               children: [
                 Text("App Settings", style: theme.textTheme.titleLarge),
 
-                DropdownButtonFormField<String>(
-                  value: _appConfig.themeBrightness,
-                  items: const [
-                    DropdownMenuItem(value: "dark", child: Text("Dark")),
-                    DropdownMenuItem(value: "light", child: Text("Light")),
-                    DropdownMenuItem(value: "automatic", child: Text("Automatic")),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _appConfig.themeBrightness = value ?? "automatic";
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Theme Brightness',
-                  ),
-                ),
+                // DropdownButtonFormField<String>(
+                //   value: _appConfig.themeBrightness,
+                //   items: const [
+                //     DropdownMenuItem(value: "dark", child: Text("Dark")),
+                //     DropdownMenuItem(value: "light", child: Text("Light")),
+                //     DropdownMenuItem(value: "automatic", child: Text("Automatic")),
+                //   ],
+                //   onChanged: (value) {
+                //     setState(() {
+                //       _appConfig.themeBrightness = value ?? "automatic";
+                //     });
+                //   },
+                //   decoration: const InputDecoration(
+                //     labelText: 'Theme Brightness',
+                //   ),
+                // ),
 
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
