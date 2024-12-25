@@ -14,7 +14,7 @@ class OgreChat extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
       floatingActionButton: const AppMenu(),
       body: ListenableBuilder(
-        listenable: controller.notifier,
+        listenable: controller.configChanged,
         builder: (context, _) {
           if(controller.llmProvider == null) {
             return const Center(

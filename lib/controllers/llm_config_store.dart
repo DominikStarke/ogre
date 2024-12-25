@@ -1,137 +1,79 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ogre/llm_providers/const.dart';
 
 class LlmConfigStore {
-  TargetPlatform platform;
-  LlmConfigStore({
-    required this.platform
-  });
-
   final String _storeKey = "llm_config_store";
-  FlutterSecureStorage? __storage;
-  FlutterSecureStorage get _storage {
-    __storage = __storage ?? FlutterSecureStorage(aOptions: platform == TargetPlatform.android
-      ? const AndroidOptions(encryptedSharedPreferences: true)
-      : AndroidOptions.defaultOptions
-    );
-    return __storage!;
-  }
+  late final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true)
+  );
 
-  Future<LlmConfigStoreModel> load () async {
+  LlmConfigStoreModel get _defaultConfig => LlmConfigStoreModel(
+    isDefault: true,
+    name: "Default"
+  );
+
+  Future<List<LlmConfigStoreModel>> loadAll() async {
     final result = await _storage.read(key: _storeKey);
-    if(result != null) {
-      return LlmConfigStoreModel.fromJson(jsonDecode(result));
+
+    if (result != null) {
+      final List<dynamic> jsonList = jsonDecode(result);
+      try {
+        final configurations = jsonList.map((json) => LlmConfigStoreModel.fromJson(json)).toList();
+        if (configurations.isEmpty) {
+          return [_defaultConfig];
+        }
+        return configurations;
+      } catch (e) {
+        return [_defaultConfig];
+      }
     } else {
-      return LlmConfigStoreModel();
+      return [_defaultConfig];
     }
   }
 
-  Future<void> save (LlmConfigStoreModel model) async {
-    await _storage.write(key: _storeKey, value: jsonEncode(model.toJson()));
+  Future<void> saveAll(List<LlmConfigStoreModel> models) async {
+    await _storage.write(key: _storeKey, value: jsonEncode(models.map((model) => model.toJson()).toList()));
   }
 }
 
 class LlmConfigStoreModel {
-  LlmProviderType defaultProvider;
-
-  String owuiHost;
-  String owuiModel;
-  String owuiApiKey;
-
-  String oaiHost;
-  String oaiModel;
-  String oaiApiKey;
-
-  String anthropicHost;
-  String anthropicModel;
-  String anthropicApiKey;
-
-  String ollamaHost;
-  String ollamaModel;
-  String ollamaApiKey;
+  LlmProviderType provider;
+  String host;
+  String model;
+  String apiKey;
+  bool isDefault;
+  String name;
 
   LlmConfigStoreModel({
-    this.defaultProvider = LlmProviderType.none,
-    this.owuiHost = "",
-    this.owuiModel = "",
-    this.owuiApiKey = "",
-
-    this.oaiHost = "",
-    this.oaiModel = "",
-    this.oaiApiKey = "",
-    
-    this.anthropicHost = "",
-    this.anthropicModel = "",
-    this.anthropicApiKey = "",
-    
-    this.ollamaHost = "",
-    this.ollamaModel = "",
-    this.ollamaApiKey = "",
+    this.provider = LlmProviderType.none,
+    this.host = "",
+    this.model = "",
+    this.apiKey = "",
+    this.isDefault = false,
+    this.name = "Default Configuration",
   });
 
-  static LlmConfigStoreModel fromJson (Map<String, dynamic> json) {
+  static LlmConfigStoreModel fromJson(Map<String, dynamic> json) {
     return LlmConfigStoreModel(
-      defaultProvider: LlmProviderType.values.where((element) => element.value == json['defaultProvider']).firstOrNull ?? LlmProviderType.none,
-      owuiHost: json['owuiHost'] ?? "",
-      owuiModel: json['owuiModel'] ?? "",
-      owuiApiKey: json['owuiApiKey'] ?? "",
-      
-      oaiHost: json['oaiHost'] ?? "",
-      oaiModel: json['oaiModel'] ?? "",
-      oaiApiKey: json['oaiApiKey'] ?? "",
-      
-      anthropicHost: json['anthropicHost'] ?? "",
-      anthropicModel: json['anthropicModel'] ?? "",
-      anthropicApiKey: json['anthropicApiKey'] ?? "",
-      
-      ollamaHost: json['ollamaHost'] ?? "",
-      ollamaModel: json['ollamaModel'] ?? "",
-      ollamaApiKey: json['ollamaApiKey'] ?? "",
+      provider: LlmProviderType.values.where((element) => element.value == json['provider']).firstOrNull ?? LlmProviderType.none,
+      host: json['host'] ?? "",
+      model: json['model'] ?? "",
+      apiKey: json['apiKey'] ?? "",
+      isDefault: json['isDefault'] ?? false,
+      name: json['name'] ?? "Default Configuration",
     );
   }
 
-  Map<String, dynamic> toJson () {
+  Map<String, dynamic> toJson() {
     return {
-      'defaultProvider': defaultProvider.value,
-      'owuiHost': owuiHost,
-      'owuiModel': owuiModel,
-      'owuiApiKey': owuiApiKey,
-
-      'oaiHost': oaiHost,
-      'oaiModel': oaiModel,
-      'oaiApiKey': oaiApiKey,
-
-      'anthropicHost': anthropicHost,
-      'anthropicModel': anthropicModel,
-      'anthropicApiKey': anthropicApiKey,
-
-      'ollamaHost': ollamaHost,
-      'ollamaModel': ollamaModel,
-      'ollamaApiKey': ollamaApiKey,
+      'provider': provider.value,
+      'host': host,
+      'model': model,
+      'apiKey': apiKey,
+      'isDefault': isDefault,
+      'name': name,
     };
-  }
-
-  LlmConfigStoreModel clone () {
-    return LlmConfigStoreModel(
-      defaultProvider: defaultProvider,
-      owuiHost: owuiHost,
-      owuiModel: owuiModel,
-      owuiApiKey: owuiApiKey,
-      
-      oaiHost: oaiHost,
-      oaiModel: oaiModel,
-      oaiApiKey: oaiApiKey,
-      
-      anthropicHost: anthropicHost,
-      anthropicModel: anthropicModel,
-      anthropicApiKey: anthropicApiKey,
-      
-      ollamaHost: ollamaHost,
-      ollamaModel: ollamaModel,
-      ollamaApiKey: ollamaApiKey,
-    );
   }
 }
 

@@ -26,65 +26,70 @@ class LlmController extends StatefulWidget {
 }
 
 class LlmControllerState extends State<LlmController> {
-  ValueNotifier<LlmProvider?>? _notifier;
-  ValueNotifier<LlmProvider?> get notifier {
-    _notifier = _notifier ?? ValueNotifier<LlmProvider?>(llmProvider);
-    return _notifier!;
+  ValueNotifier<List<LlmConfigStoreModel>>? _configChanged;
+  ValueNotifier<List<LlmConfigStoreModel>> get configChanged {
+    _configChanged = _configChanged ?? ValueNotifier<List<LlmConfigStoreModel>>(_configs);
+    return _configChanged!;
   }
 
-  LlmProvider? _llmProvider;
+  final List<LlmConfigStoreModel> _configs = [];
+  List<LlmConfigStoreModel> get configs => [..._configs];
+  LlmConfigStoreModel get selectedConfig => _configs.firstWhere((config) => config.isDefault, orElse: () => _configs.first);
+
+  LlmProvider _llmProvider = EchoProvider();
   LlmProvider? get llmProvider => _llmProvider;
 
-  LlmConfigStore get _storage => LlmConfigStore(
-    platform: Theme.of(context).platform,
-  );
+  final _storage = LlmConfigStore();
 
-  Future<LlmConfigStoreModel> getConfig () async {
-    return await _storage.load();
+  Future<void> loadConfigs () async {
+    _configs.clear();
+    _configs.addAll(await _storage.loadAll());
+    configure(selectedConfig);
   }
 
-  Future<void> saveConfig (LlmConfigStoreModel config) async {
-    await _storage.save(config);
-    _configure(config.clone());
+  Future<void> saveConfigs (List<LlmConfigStoreModel> configs) async {
+    _configs.clear();
+    _configs.addAll(configs);
+    await _storage.saveAll(configs);
+    configure(selectedConfig);
   }
 
-  void _loadAndConfigure () async {
-    final config = await getConfig();
-    _configure(config.clone());
-  }
+  void configure (LlmConfigStoreModel config) {
+    for(final c in _configs) {
+      c.isDefault = false;
+    }
 
-  void _configure (LlmConfigStoreModel config) {
-    if (config.defaultProvider == LlmProviderType.openwebui) {
+    config.isDefault = true;
+    if (config.provider == LlmProviderType.openwebui) {
       _llmProvider = OpenwebuiProvider(
-        baseUrl: config.owuiHost,
-        model: config.owuiModel,
-        apiKey: config.owuiApiKey,
+        baseUrl: config.host,
+        model: config.model,
+        apiKey: config.apiKey,
       );
-    } else if (config.defaultProvider == LlmProviderType.openai) {
+    } else if (config.provider == LlmProviderType.openai) {
       _llmProvider = OpenAIProvider(
-        baseUrl: config.oaiHost,
-        model: config.oaiModel,
-        apiKey: config.oaiApiKey,
+        baseUrl: config.host,
+        model: config.model,
+        apiKey: config.apiKey,
       );
-    } else if (config.defaultProvider == LlmProviderType.anthropic) {
+    } else if (config.provider == LlmProviderType.anthropic) {
       _llmProvider = AnthropicProvider(
-        baseUrl: config.anthropicHost,
-        model: config.anthropicModel,
-        apiKey: config.anthropicApiKey,
+        baseUrl: config.host,
+        model: config.model,
+        apiKey: config.apiKey,
       );
-    } else if (config.defaultProvider == LlmProviderType.ollama) {
+    } else if (config.provider == LlmProviderType.ollama) {
       _llmProvider = OllamaProvider(
-        baseUrl: config.ollamaHost,
-        model: config.ollamaModel,
+        baseUrl: config.host,
+        model: config.model,
       );
     }
 
-    notifier.value = llmProvider;
+    configChanged.value = configs;
   }
 
   void clearChat () {
-    _llmProvider = null;
-    notifier.value = llmProvider;
+    configure(selectedConfig);
   }
 
   Stream<String> clipboardAttachmentSender (String prompt, {required Iterable<Attachment> attachments}) async* {
@@ -113,18 +118,18 @@ class LlmControllerState extends State<LlmController> {
   @override
   void initState() {
     super.initState();
+    loadConfigs();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadAndConfigure();
   }
 
   @override
   void dispose() {
     super.dispose();
-    notifier.dispose();
+    configChanged.dispose();
   }
 
   @override

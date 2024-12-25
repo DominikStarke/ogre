@@ -44,8 +44,8 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     skipTaskbar: true,
     center: false,
     windowButtonVisibility: false,
-    maximumSize: Size(800, 600),
-    minimumSize: Size(800, 600),
+    // maximumSize: Size(800, 600),
+    // minimumSize: Size(800, 600),
   );
 
   @override
