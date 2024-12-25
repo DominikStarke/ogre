@@ -40,11 +40,8 @@ class OgreApp extends StatelessWidget {
         colorScheme: darkScheme,
       ),
       home: const AppController(
-        loading: Material(
-          color: Colors.white,
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
+        loading: Center(
+          child: CircularProgressIndicator(),
         ),
         child: Navigator(
           onGenerateRoute: onGenerateRoute,

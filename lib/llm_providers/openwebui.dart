@@ -135,17 +135,11 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
     String prompt, {
     Iterable<Attachment> attachments = const [],
   }) async* {
-    _history.clear();
     final userMessage = ChatMessage(text: prompt, attachments: attachments, origin: MessageOrigin.user);
     final llmMessage = ChatMessage(text: "", attachments: [], origin: MessageOrigin.llm);
-    _history.addAll([userMessage, llmMessage]);
     
-    final stream = _generateStream([userMessage]);
+    yield* _generateStream([userMessage, llmMessage]);
     
-    yield* stream.map((chunk) {
-      llmMessage.append(chunk);
-      return chunk;
-    });
     notifyListeners();
   }
 
@@ -158,17 +152,13 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
     final llmMessage = ChatMessage(text: null, attachments: [], origin: MessageOrigin.llm);
     _history.addAll([userMessage, llmMessage]);
 
-    final stream = _generateStream(_history);
-
-    yield* stream.map((chunk) {
-      llmMessage.append(chunk);
-      return chunk;
-    });
+    yield* _generateStream(_history);
     notifyListeners();
   }
 
   Stream<String> _generateStream(List<ChatMessage> messages) async* {
     final files = messages.lastWhere((m) => m.origin == MessageOrigin.user, orElse: () => _emptyMessage).attachments;
+    final llmMessage = messages.last;
     if(files.isNotEmpty) {
       for (var file in files) {
         _attachments.add(await _uploadAttachment(file));
@@ -189,9 +179,7 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
     final httpResponse = await http.Client().send(httpRequest);
 
     if (httpResponse.statusCode == 200) {
-      final textStream = httpResponse.stream.transform(utf8.decoder);
-
-      await for (var text in textStream) {
+      await for (var text in httpResponse.stream.transform(utf8.decoder)) {
         final messages = text.split('\n');
         for (var message in messages) {
           if (message.startsWith('data: [DONE]')) {
@@ -202,13 +190,15 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
           try {
             final chatResponse = _OwuiChatResponse.fromJsonString(cleanedMessage);
             for (var choice in chatResponse.choices) {
-              final content = choice.message.text ?? '';
-              yield content;
+              llmMessage.append(choice.message.text ?? '');
+              yield choice.message.text ?? '';
             }
           } catch (e) {
             // just skip?
           }
         }
+        llmMessage.append('');
+        yield '';
       }
     } else {
       throw Exception('HTTP request failed. Status: ${httpResponse.statusCode}, Reason: ${httpResponse.reasonPhrase}');
