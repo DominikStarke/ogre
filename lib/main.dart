@@ -4,6 +4,7 @@ import 'package:ogre/controllers/llm.dart';
 
 import 'package:ogre/screens/chat.dart';
 import 'package:ogre/screens/settings.dart';
+import 'package:ogre/widgets/theme.dart';
 
 void main() async {
   runApp(const OgreApp());
@@ -11,9 +12,6 @@ void main() async {
 
 class OgreApp extends StatelessWidget {
   const OgreApp({super.key});
-
-  get darkScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark);
-  get lightScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.light);
 
   static Route<dynamic>? onGenerateRoute (settings) {
     if(settings.name == '/settings') {
@@ -31,15 +29,9 @@ class OgreApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: lightScheme,
-      ),
       title: "Ogre",
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: darkScheme,
-      ),
+      theme: getTheme(Brightness.light),
+      darkTheme: getTheme(Brightness.dark),
       home: const AppController(
         loading: Center(
           child: CircularProgressIndicator(),

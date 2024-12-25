@@ -3,6 +3,8 @@ import 'package:ogre/controllers/llm.dart';
 import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/llm_providers/const.dart';
 import 'dart:convert';
+import 'package:ogre/controllers/app.dart';
+import 'package:ogre/controllers/app_config_store.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -12,12 +14,14 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  late final _controller = LlmController.of(context);
+  late final _llmController = LlmController.of(context);
+  late final _appController = AppController.of(context);
   final _formKey = GlobalKey<FormState>();
 
   List<LlmConfigStoreModel> _configs = [];
   LlmConfigStoreModel _selectedConfig = LlmConfigStoreModel();
   final _selectedConfigName = ValueNotifier<String>("");
+  AppConfigStoreModel _appConfig = AppConfigStoreModel();
 
   @override
   void initState() {
@@ -32,14 +36,16 @@ class _SettingsState extends State<Settings> {
   }
 
   Future<void> asyncInit() async {
-    _configs = _controller.configs;
+    _configs = _llmController.configs;
+    _appConfig = _appController.config;
     if (_configs.isNotEmpty) {
       setConfig(_configs.firstWhere((config) => config.isDefault, orElse: () => _configs.first));
     }
   }
 
   Future<void> saveConfig() async {
-    await _controller.saveConfigs(_configs);
+    await _llmController.saveConfigs(_configs);
+    await _appController.saveConfig();
   }
 
   Future<void> addConfig() async {
@@ -75,6 +81,9 @@ class _SettingsState extends State<Settings> {
   }
 
   String? jsonValidator(value) {
+    if(value.isEmpty) {
+      return null;
+    }
     try {
       if (value != null) {
         jsonDecode(value);
@@ -87,17 +96,13 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
         scrolledUnderElevation: 0,
         title: const Text('Settings'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: addConfig,
-          ),
-        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -115,33 +120,75 @@ class _SettingsState extends State<Settings> {
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
-              spacing: 10,
+              spacing: 20,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Text("App Settings"),
+
+                DropdownButtonFormField<String>(
+                  value: _appConfig.themeBrightness,
+                  items: const [
+                    DropdownMenuItem(value: "dark", child: Text("Dark")),
+                    DropdownMenuItem(value: "light", child: Text("Light")),
+                    DropdownMenuItem(value: "automatic", child: Text("Automatic")),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _appConfig.themeBrightness = value ?? "automatic";
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Theme Brightness',
+                  ),
+                ),
+
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Hide application when inactive'),
+                  value: _appConfig.autoHide,
+                  onChanged: (value) {
+                    setState(() {
+                      _appConfig.autoHide = value;
+                    });
+                  },
+                ),
+
+                const Divider(),
+
+                const Text("Provider Configurations"),
+
                 ListenableBuilder(
                   listenable: _selectedConfigName,
-                  builder: (context, _) => DropdownButtonFormField<LlmConfigStoreModel>(
-                    key: UniqueKey(),
-                    value: _selectedConfig,
-                    selectedItemBuilder: (context) {
-                      return _configs.map((config) {
-                        return Text(_selectedConfigName.value);
-                      }).toList();
-                    },
-                    items: _configs.map((config) {
-                      return DropdownMenuItem(
-                        key: UniqueKey(),
-                        value: config,
-                        child: Text(config.name),
-                      );
-                    }).toList(),
-                    onChanged: setConfig,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      labelText: 'Select Configuration',
-                    ),
-                  )
+                  builder: (context, _) => Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<LlmConfigStoreModel>(
+                          key: UniqueKey(),
+                          value: _selectedConfig,
+                          selectedItemBuilder: (context) {
+                            return _configs.map((config) {
+                              return Text(_selectedConfigName.value);
+                            }).toList();
+                          },
+                          items: _configs.map((config) {
+                            return DropdownMenuItem(
+                              key: UniqueKey(),
+                              value: config,
+                              child: Text(config.name),
+                            );
+                          }).toList(),
+                          onChanged: setConfig,
+                          decoration: const InputDecoration(
+                            labelText: 'Select Configuration',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: addConfig,
+                      ),
+                    ],
+                  ),
                 ),
           
                 const Divider(),
@@ -150,35 +197,34 @@ class _SettingsState extends State<Settings> {
                   key: UniqueKey(),
                   initialValue: _selectedConfig.name,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
                     labelText: 'Configuration Name',
                   ),
                   onChanged: setName,
                 ),
                 
-                DropdownMenu<LlmProviderType>(
-                  initialSelection: _selectedConfig.provider,
-                  dropdownMenuEntries: LlmProviderType.values.map((type) => DropdownMenuEntry(
-                    label: type.value,
-                    value: type,
-                  )).toList(),
-                  label: const Text('Use Provider'),
-                  hintText: 'Select a provider',
-                  width: double.infinity,
-                  onSelected: (value) {
+                DropdownButtonFormField<LlmProviderType>(
+                  value: _selectedConfig.provider,
+                  items: LlmProviderType.values.map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Text(type.value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
                     setState(() {
                       _selectedConfig.provider = value ?? LlmProviderType.none;
                     });
                   },
+                  decoration: const InputDecoration(
+                    labelText: 'Provider',
+                    hintText: 'Select a provider',
+                  ),
                 ),
                 
                 TextFormField(
                   key: UniqueKey(),
                   initialValue: _selectedConfig.apiKey,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
                     labelText: 'API Key',
                   ),
                   onSaved: (value) {
@@ -190,10 +236,8 @@ class _SettingsState extends State<Settings> {
                   key: UniqueKey(),
                   initialValue: _selectedConfig.host,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
                     labelText: 'Host',
-                    hintText: 'https://api.example.com',
+                    hintText: 'http://localhost:3000/api',
                   ),
                   onSaved: (value) {
                     _selectedConfig.host = value ?? "";
@@ -204,8 +248,6 @@ class _SettingsState extends State<Settings> {
                   key: UniqueKey(),
                   initialValue: _selectedConfig.model,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
                     labelText: 'Model',
                     hintText: 'model-name',
                   ),
@@ -218,8 +260,6 @@ class _SettingsState extends State<Settings> {
                   key: UniqueKey(),
                   initialValue: _selectedConfig.organization,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
                     labelText: 'Organization (Optional)',
                   ),
                   onSaved: (value) {
@@ -231,17 +271,18 @@ class _SettingsState extends State<Settings> {
                   key: UniqueKey(),
                   initialValue: _selectedConfig.header != null ? jsonEncode(_selectedConfig.header) : null,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
                     labelText: 'Headers (Optional JSON)',
-                    alignLabelWithHint: true,
                     hintText: '{"key1": "value1", "key2": "value2"}',
                   ),
                   minLines: null,
                   maxLines:  null,
                   validator: jsonValidator,
                   onSaved: (value) {
-                    _selectedConfig.header = Map<String, String>.from(jsonDecode(value!));
+                    try {
+                      _selectedConfig.header = value != null ? Map<String, String>.from(jsonDecode(value)) : null;
+                    } catch (e) {
+                      _selectedConfig.header = null;
+                    }
                   },
                 ),
           
@@ -249,19 +290,22 @@ class _SettingsState extends State<Settings> {
                   key: UniqueKey(),
                   initialValue: _selectedConfig.queryParams != null ? jsonEncode(_selectedConfig.queryParams) : null,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    isDense: true,
                     labelText: 'QueryParams (Optional JSON)',
-                    alignLabelWithHint: true,
                     hintText: '{"key1": "value1", "key2": "value2"}',
                   ),
                   minLines: null,
                   maxLines:  null,
                   validator: jsonValidator,
                   onSaved: (value) {
-                    _selectedConfig.queryParams = value != null ? Map<String, String>.from(jsonDecode(value)) : null;
+                    try {
+                      _selectedConfig.header = value != null ? Map<String, String>.from(jsonDecode(value)) : null;
+                    } catch (e) {
+                      _selectedConfig.header = null;
+                    }
                   },
                 ),
+                
+                const Divider(),
           
                 ElevatedButton(
                   style: ButtonStyle(

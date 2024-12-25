@@ -9,6 +9,7 @@ import 'package:keypress_simulator/keypress_simulator.dart';
 import 'package:ogre/helpers/hotkey_entry.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:ogre/controllers/app_config_store.dart';
 
 class AppController extends StatefulWidget {
   final Widget child;
@@ -37,7 +38,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   ClipboardData? clipboardData;
 
   final WindowOptions _windowOptions = const WindowOptions(
-    size: Size(800, 600),
+    size: Size(480, 1024),
     titleBarStyle: TitleBarStyle.hidden,
     alwaysOnTop: true,
     skipTaskbar: true,
@@ -47,12 +48,18 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     // minimumSize: Size(800, 600),
   );
 
+  final _configStore = AppConfigStore();
+  AppConfigStoreModel _config = AppConfigStoreModel();
+
+  AppConfigStoreModel get config => _config;
+
   @override
   initState() {
     trayManager.addListener(this);
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _init();
+   
   }
 
   Future<void> _init () async {
@@ -62,6 +69,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
         _initialized = true;
       });
     }
+    await loadConfig();
     await hotKeyManager.unregisterAll(); // Ensure no hotkeys are unregistered on hot reload
     await windowManager.ensureInitialized();
     await trayManager.setIcon('assets/app_icon.png');
@@ -79,6 +87,15 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     setState(() {
       _initialized = true;
     });
+  }
+
+  Future<void> loadConfig() async {
+    _config = await _configStore.load();
+    setState(() {});
+  }
+
+  Future<void> saveConfig() async {
+    await _configStore.save(_config);
   }
 
   Future<void> _setTrayConfiguration () async {
