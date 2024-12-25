@@ -54,6 +54,15 @@ class _SettingsState extends State<Settings> {
     setConfig(newConfig);
   }
 
+  Future<void> duplicate(LlmConfigStoreModel config) async {
+    final newConfig = config.copyWith(
+      isDefault: false,
+      name: "Copy of ${config.name}",
+    );
+    _configs.add(newConfig);
+    setConfig(newConfig);
+  }
+
   Future<void> removeConfig(LlmConfigStoreModel config) async {
     _configs.remove(config);
     if (_configs.isNotEmpty) {
@@ -96,7 +105,8 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     
     return Scaffold(
       appBar: AppBar(
@@ -114,16 +124,16 @@ class _SettingsState extends State<Settings> {
         child: const Icon(Icons.save),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(16),
         children: [
           Form(
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
-              spacing: 20,
+              spacing: 24,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("App Settings"),
+                Text("App Settings", style: theme.textTheme.titleLarge),
 
                 DropdownButtonFormField<String>(
                   value: _appConfig.themeBrightness,
@@ -153,45 +163,66 @@ class _SettingsState extends State<Settings> {
                   },
                 ),
 
-                const Divider(),
+                Text("Provider Configurations", style: theme.textTheme.titleLarge),
 
-                const Text("Provider Configurations"),
-
-                ListenableBuilder(
-                  listenable: _selectedConfigName,
-                  builder: (context, _) => Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<LlmConfigStoreModel>(
-                          key: UniqueKey(),
-                          value: _selectedConfig,
-                          selectedItemBuilder: (context) {
-                            return _configs.map((config) {
-                              return Text(_selectedConfigName.value);
-                            }).toList();
-                          },
-                          items: _configs.map((config) {
-                            return DropdownMenuItem(
-                              key: UniqueKey(),
-                              value: config,
-                              child: Text(config.name),
-                            );
-                          }).toList(),
-                          onChanged: setConfig,
-                          decoration: const InputDecoration(
-                            labelText: 'Select Configuration',
+                Row(
+                  spacing: 4,
+                  children: [
+                    ListenableBuilder(
+                      listenable: _selectedConfigName,
+                      builder: (context, _) {
+                        return Expanded(
+                          child: DropdownButtonFormField<LlmConfigStoreModel>(
+                            key: UniqueKey(),
+                            value: _selectedConfig,
+                            selectedItemBuilder: (context) {
+                              return _configs.map((config) {
+                                return Text(_selectedConfigName.value);
+                              }).toList();
+                            },
+                            items: _configs.map((config) {
+                              return DropdownMenuItem(
+                                key: UniqueKey(),
+                                value: config,
+                                child: Text(config.name),
+                              );
+                            }).toList(),
+                            onChanged: setConfig,
+                            decoration: const InputDecoration(
+                              labelText: 'Select Configuration',
+                            ),
                           ),
-                        ),
+                        );
+                      }
+                    ),
+                    IconButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(scheme.primaryContainer),
+                        foregroundColor: WidgetStatePropertyAll(scheme.onPrimaryContainer),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: addConfig,
+                      icon: const Icon(Icons.add),
+                      onPressed: addConfig,
+                    ),
+                
+                    IconButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(scheme.tertiaryContainer),
+                        foregroundColor: WidgetStatePropertyAll(scheme.onTertiaryContainer),
                       ),
-                    ],
-                  ),
+                      icon: const Icon(Icons.copy),
+                      onPressed: () => duplicate(_selectedConfig),
+                    ),
+                
+                    IconButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(scheme.errorContainer),
+                        foregroundColor: WidgetStatePropertyAll(scheme.onErrorContainer),
+                      ),
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => removeConfig(_selectedConfig),
+                    ),
+                  ],
                 ),
-          
-                const Divider(),
           
                 TextFormField(
                   key: UniqueKey(),
@@ -304,17 +335,8 @@ class _SettingsState extends State<Settings> {
                     }
                   },
                 ),
-                
-                const Divider(),
-          
-                ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.error),
-                    foregroundColor: WidgetStatePropertyAll(Theme.of(context).colorScheme.onError),
-                  ),
-                  onPressed: () => removeConfig(_selectedConfig),
-                  child: const Text('Delete Configuration'),
-                ),
+
+                const SizedBox(height: 56) // add some extra space for the FAB
               ],
             ),
           ),

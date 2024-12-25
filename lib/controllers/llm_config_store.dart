@@ -87,5 +87,29 @@ class LlmConfigStoreModel {
       'queryParams': queryParams,
     };
   }
+
+  LlmConfigStoreModel copyWith({
+    LlmProviderType? provider,
+    String? host,
+    String? model,
+    String? apiKey,
+    bool? isDefault,
+    String? name,
+    Map<String, String>? header,
+    String? organization,
+    Map<String, String>? queryParams,
+  }) {
+    return LlmConfigStoreModel(
+      provider: provider ?? this.provider,
+      host: host ?? this.host,
+      model: model ?? this.model,
+      apiKey: apiKey ?? this.apiKey,
+      isDefault: isDefault ?? this.isDefault,
+      name: name ?? this.name,
+      header: header ?? this.header,
+      organization: organization ?? this.organization,
+      queryParams: queryParams ?? this.queryParams,
+    );
+  }
 }
 

@@ -140,8 +140,8 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if(state == AppLifecycleState.inactive) {
-      // windowManager.hide();
+    if(state == AppLifecycleState.inactive && _config.autoHide) {
+      _hide();
     }
   }
 
@@ -155,8 +155,12 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
   }
 
   @override
-  void onTrayIconMouseDown() async {
-
+  void onTrayIconMouseUp() async {
+    if(await windowManager.isVisible()) {
+      _hide();
+    } else {
+      await windowManager.show();
+    }
   }
 
   @override
