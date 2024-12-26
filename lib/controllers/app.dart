@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:keypress_simulator/keypress_simulator.dart';
+import 'package:ogre/controllers/clipboard.dart';
 import 'package:ogre/helpers/hotkey_entry.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -33,8 +34,6 @@ class AppController extends StatefulWidget {
 }
 
 class AppControllerState extends State<AppController> with TrayListener, WindowListener, WidgetsBindingObserver {
-  bool _initialized = false;
-  ClipboardData? clipboardData;
 
   final WindowOptions _windowOptions = const WindowOptions(
     size: Size(480, 1024),
@@ -43,13 +42,13 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     skipTaskbar: true,
     center: false,
     windowButtonVisibility: false,
-    // maximumSize: Size(800, 600),
-    // minimumSize: Size(800, 600),
   );
 
-  final _configStore = AppConfigStore();
-  AppConfigStoreModel _config = AppConfigStoreModel();
+  final ClipboardController clipboard = ClipboardController();
 
+  final _configStore = AppConfigStore();
+  bool _initialized = false;
+  AppConfigStoreModel _config = AppConfigStoreModel();
   AppConfigStoreModel get config => _config;
 
   @override
@@ -58,7 +57,13 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _init();
-   
+  }
+
+  @override dispose() {
+    trayManager.removeListener(this);
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    clipboard.dispose();
   }
 
   Future<void> _init () async {
@@ -116,20 +121,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     if(await windowManager.isVisible()) {
       _hide();
     } else {
-      await Future.delayed(const Duration(milliseconds: 20));
-      await keyPressSimulator.simulateKeyDown(
-        PhysicalKeyboardKey.keyC,
-        [ModifierKey.metaModifier],
-      );
-      await Future.delayed(const Duration(milliseconds: 20));
-      await keyPressSimulator.simulateKeyUp(
-        PhysicalKeyboardKey.keyC,
-        [ModifierKey.metaModifier],
-      );
-      await Future.delayed(const Duration(milliseconds: 20));
-      
-      clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-      windowManager.show();
+      _show();
     }
   }
 
@@ -137,16 +129,22 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     await windowManager.hide();
   }
 
+  Future<void> _show() async {
+    await windowManager.show();
+  }
+
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if(state == AppLifecycleState.inactive && _config.autoHide) {
       _hide();
+    } else {
+      clipboard.update();
     }
   }
 
   @override
-  void didUpdateWidget(covariant AppController oldWidget) {
+  void didUpdateWidget(AppController oldWidget) {
     super.didUpdateWidget(oldWidget);
     setState(() {
       _initialized = false;

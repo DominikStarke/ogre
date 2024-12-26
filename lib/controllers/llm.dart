@@ -104,20 +104,20 @@ class LlmControllerState extends State<LlmController> {
       yield "No provider selected. Go to settings and configure your AI provider.";
       return;
     }
-    final controller = AppController.of(context);
-    if (controller.clipboardData != null && attachments.isEmpty) {
-      final fileAttachment = FileAttachment(
-        name: 'clipboardData',
-        mimeType: 'text/plain',
-        bytes: Uint8List.fromList(utf8.encode(controller.clipboardData?.text ?? '')),
-      );
-      controller.clipboardData = null;
+
+    if (attachments.isEmpty) {
+      final clipboard = AppController.of(context).clipboard;
       yield* llmProvider!.sendMessageStream(
         prompt,
-        attachments: [...attachments, fileAttachment],
+        attachments: [
+          ...attachments,
+          ...clipboard.files,
+          ...clipboard.texts,
+          ...clipboard.images
+        ],
       );
+      clipboard.clear();
     } else {
-      controller.clipboardData = null;
       yield* llmProvider!.sendMessageStream(prompt, attachments: attachments);
     }
   }

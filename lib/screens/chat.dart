@@ -3,6 +3,7 @@ import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:ogre/controllers/llm.dart';
 import 'package:ogre/theme/material_chat.dart';
 import 'package:ogre/widgets/app_menu.dart';
+import 'package:ogre/widgets/clipboard_menu.dart';
 
 class OgreChat extends StatelessWidget {
   const OgreChat({super.key});
@@ -11,8 +12,14 @@ class OgreChat extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = LlmController.of(context);
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
-      floatingActionButton: const AppMenu(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+      floatingActionButton: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ClipboardMenu(),
+          AppMenu(),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: controller.configChanged,
         builder: (context, _) {

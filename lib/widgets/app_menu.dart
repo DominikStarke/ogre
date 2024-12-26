@@ -12,45 +12,62 @@ class AppMenu extends StatelessWidget {
       builder: (context, result) {
         final configs = LlmController.of(context).configs;
         return Padding(
-          padding: const EdgeInsets.only(top: 10.0),
-          child: PopupMenuButton<String>(
-            style: ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerLowest.withValues(alpha: .5)),
-            ),
-            onSelected: (String result) {
-              if(result == 'go_to_settings') {
-                Navigator.pushNamed(context, "/settings");
-              } else if(result == 'clear_chat') {
-                LlmController.of(context).clearChat();
-              }
+          padding: const EdgeInsets.all(10.0),
+          child: MenuAnchor(
+            builder: (context, controller, widget) {
+              return IconButton(
+                icon: const Icon(Icons.more_vert),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerLowest),
+                ),
+                color: scheme.tertiary,
+                onPressed: () {
+                  if(controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+              );
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'go_to_settings',
-                child: Text('Settings'),
+            menuChildren: [
+              MenuItemButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, "/settings");
+                },
+                child: const Text('Settings'),
               ),
-              
-              const PopupMenuDivider(),
+
+              const Divider(),
 
               ...configs.map((config) {
-                return CheckedPopupMenuItem(
-                  checked: config.isDefault,
-                  value: configs.indexOf(config).toString(),
-                  child: Text(config.name),
-                  onTap: () {
+                return MenuItemButton(
+                  onPressed: () {
                     LlmController.of(context).configure(config);
                   },
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: config.isDefault,
+                        onChanged: (bool? value) {
+                          LlmController.of(context).configure(config);
+                        },
+                      ),
+                      Text(config.name),
+                    ],
+                  ),
                 );
               }),
 
-              const PopupMenuDivider(),
-              
-              PopupMenuItem<String>(
-                value: 'clear_chat',
+              const Divider(),
+
+              MenuItemButton(
+                onPressed: () {
+                  LlmController.of(context).clearChat();
+                },
                 child: Text('Clear chat', style: TextStyle(color: scheme.error)),
               ),
             ],
-            icon: const Icon(Icons.more_vert),
           ),
         );
       }

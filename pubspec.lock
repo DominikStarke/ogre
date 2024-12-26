@@ -704,7 +704,7 @@ packages:
     source: hosted
     version: "1.15.0"
   mime:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mime
       sha256: "41a20518f0cb1256669420fdba0cd90d21561e560ac240f26ef8322e45bb7ed6"
@@ -727,6 +727,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.5"
+  pasteboard:
+    dependency: "direct main"
+    description:
+      name: pasteboard
+      sha256: "7bf733f3a00c7188ec1f2c6f0612854248b302cf91ef3611a2b7bb141c0f9d55"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   path:
     dependency: transitive
     description:
