@@ -64,26 +64,27 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
 
   Future<void> _init () async {
     WidgetsFlutterBinding.ensureInitialized();
-    if(kIsWeb) {
-      return setState(() {
-        _initialized = true;
-      });
-    }
     await loadConfig();
-    await hotKeyManager.unregisterAll(); // Ensure no hotkeys are unregistered on hot reload
-    await windowManager.ensureInitialized();
-    await trayManager.setIcon('assets/app_icon.png');
-    await _setTrayConfiguration();
-    windowManager.waitUntilReadyToShow(_windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-    HotkeyEntry(
-      key: LogicalKeyboardKey.home,
-      modifiers: [HotKeyModifier.shift],
-      scope: HotKeyScope.system,
-      onUp: _onActivate
-    ).register();
+    
+    try {
+      await hotKeyManager.unregisterAll(); // Ensure no hotkeys are unregistered on hot reload
+      await windowManager.ensureInitialized();
+      await trayManager.setIcon('assets/app_icon.png');
+      await _setTrayConfiguration();
+      windowManager.waitUntilReadyToShow(_windowOptions, () async {
+        await windowManager.show();
+        await windowManager.focus();
+      });
+      HotkeyEntry(
+        key: LogicalKeyboardKey.home,
+        modifiers: [HotKeyModifier.shift],
+        scope: HotKeyScope.system,
+        onUp: _onActivate
+      ).register();
+    } catch(e) {
+      /// Skip unsupported platforms
+    }
+    
     setState(() {
       _initialized = true;
     });
