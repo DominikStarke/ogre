@@ -47,8 +47,7 @@ class ClipboardController extends ChangeNotifier {
       } else {
         return null;
       }
-    }).toList();
-    files.removeWhere((file) => file == null);
+    }).toList()..removeWhere((file) => file == null);
     return files.cast<Attachment>();
   }
 
@@ -56,28 +55,45 @@ class ClipboardController extends ChangeNotifier {
     _texts.clear();
     _files.clear();
     _images.clear();
+    Clipboard.setData(const ClipboardData(text: ''));
     notifyListeners();
+  }
+
+  void _addUniqueItems<T>(List<T> source, List<T> target) {
+    for (var item in source) {
+      if (!target.contains(item)) {
+        target.add(item);
+      }
+    }
   }
 
   void addAll({
-    List<String>? text,
+    List<String>? texts,
     List<String>? files,
-    List<Uint8List>? image,
+    List<Uint8List>? images,
   }) {
-    _texts.addAll(text ?? []);
-    _files.addAll(files ?? []);
-    _images.addAll(image ?? []);
+    if (texts != null) {
+      _addUniqueItems(texts, _texts);
+    }
+
+    if (files != null) {
+      _addUniqueItems(files, _files);
+    }
+
+    if (images != null) {
+      _addUniqueItems(images, _images);
+    }
+
     notifyListeners();
   }
 
-  update() async {
-    clear();
-    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text;
+  Future<void> update() async {
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text?.trim();
     final image = await Pasteboard.image;
     final files = await Pasteboard.files();
     addAll(
-      text: [if(text != null && files.isEmpty && image == null) text],
-      image: [if(image != null) image],
+      texts: [if(text != null && text.isNotEmpty && files.isEmpty && image == null) text],
+      images: [if(image != null && files.isEmpty) image],
       files: await Pasteboard.files()
     );
     notifyListeners();

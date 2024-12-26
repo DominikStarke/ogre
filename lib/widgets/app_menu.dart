@@ -14,6 +14,7 @@ class AppMenu extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(10.0),
           child: MenuAnchor(
+            consumeOutsideTap: true,
             builder: (context, controller, widget) {
               return IconButton(
                 icon: const Icon(Icons.more_vert),

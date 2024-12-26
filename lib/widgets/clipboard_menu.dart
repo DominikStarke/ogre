@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:ogre/controllers/app.dart';
-import 'package:ogre/controllers/llm.dart';
 
 class ClipboardMenu extends StatelessWidget {
   const ClipboardMenu({super.key});
@@ -22,6 +21,7 @@ class ClipboardMenu extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(10),
           child: MenuAnchor(
+            consumeOutsideTap: true,
             builder: (context, controller, widget) {
               return IconButton(
                 icon: const Icon(Icons.content_paste_rounded),
@@ -40,11 +40,12 @@ class ClipboardMenu extends StatelessWidget {
             },
             menuChildren: [
               ...attachments.map((attachment) {
-
                 return MenuItemButton(
-                  
+                  style: const ButtonStyle(
+                    padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 12, horizontal: 8)),
+                  ),
                   onPressed: () {
-                    LlmController.of(context).clearChat();
+                    // LlmController.of(context).clearChat();
                   },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +61,7 @@ class ClipboardMenu extends StatelessWidget {
 
               MenuItemButton(
                 onPressed: () {
-                  LlmController.of(context).clearChat();
+                  clipboard.clear();
                 },
                 child: Text('Clear', style: TextStyle(color: scheme.error)),
               ),
