@@ -2,7 +2,7 @@
 
 ![Mighty Ogre](assets/app_icon.png)
 
-### AI on your Desktop
+### AI for your Clipboard
 Ogre provides a simple chat interface as tray-application.
 Copy something to your clipboard and press ```shift + home```.
 
