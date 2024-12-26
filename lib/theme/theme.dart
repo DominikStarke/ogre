@@ -1,20 +1,31 @@
 import 'package:flutter/material.dart';
 
-ColorScheme get darkScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark);
-ColorScheme get lightScheme => ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.light);
+ColorScheme get darkScheme => ColorScheme.fromSeed(
+  seedColor: Colors.cyan,
+  contrastLevel: .2,
+  dynamicSchemeVariant: DynamicSchemeVariant.fruitSalad,
+  brightness: Brightness.dark
+);
+
+ColorScheme get lightScheme => ColorScheme.fromSeed(
+  seedColor: Colors.cyan,
+  contrastLevel: .2,
+  dynamicSchemeVariant: DynamicSchemeVariant.fruitSalad,
+  brightness: Brightness.light
+);
 
 TextTheme get textTheme => const TextTheme(
-  bodyLarge: TextStyle(fontSize: 13, fontWeight: FontWeight.w300),
-  bodyMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w300),
-  bodySmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w300),
+  bodyLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+  bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+  bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
 
-  labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
-  labelMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w300),
-  labelSmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w300),
+  labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
+  labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+  labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
 
   titleLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-  titleMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w300),
-  titleSmall: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+  titleMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+  titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
 );
 
 InputDecorationTheme get inputDecorationTheme => const InputDecorationTheme(

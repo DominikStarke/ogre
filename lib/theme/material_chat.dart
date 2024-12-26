@@ -19,24 +19,29 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
           bottomRight: Radius.circular(20)
         ),
       ),
-      textStyle: TextStyle(color: scheme.onPrimaryContainer)
+      textStyle: TextStyle(color: scheme.onSurface),
     ),
     llmMessageStyle: LlmMessageStyle(
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHigh,
+        color: scheme.surfaceContainer,
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(20),
           bottomLeft: Radius.circular(20),
           bottomRight: Radius.circular(20)
         ),
       ),
-      markdownStyle: MarkdownStyleSheet.fromTheme(theme)
+      markdownStyle: MarkdownStyleSheet.fromTheme(theme),
+      iconColor: scheme.onTertiary,
+      iconDecoration: BoxDecoration(
+        color: scheme.tertiary,
+        shape: BoxShape.circle,
+      ),
     ),
     chatInputStyle: ChatInputStyle(
       backgroundColor: theme.scaffoldBackgroundColor,
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLowest,
-        border: Border.all(color: scheme.surfaceContainer, width: 2),
+        border: Border.all(color: scheme.outline, width: 1),
         borderRadius: BorderRadius.circular(20),
       ),
       textStyle: TextStyle(color: scheme.onSurface),
@@ -76,17 +81,17 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
     ),
     closeButtonStyle: ActionButtonStyle(
       icon: Icons.close,
-      iconColor: buttonTheme.colorScheme?.onPrimary,
-      iconDecoration: BoxDecoration(
-        color: buttonTheme.colorScheme?.primary,
+      iconColor: buttonTheme.colorScheme?.surface,
+      iconDecoration: const BoxDecoration(
+        color: Colors.transparent,
         shape: BoxShape.circle,
       ),
     ),
     cancelButtonStyle: ActionButtonStyle(
       icon: Icons.cancel,
-      iconColor: buttonTheme.colorScheme?.onPrimary,
+      iconColor: buttonTheme.colorScheme?.onError,
       iconDecoration: BoxDecoration(
-        color: buttonTheme.colorScheme?.primary,
+        color: buttonTheme.colorScheme?.error,
         shape: BoxShape.circle,
       ),
     ),
@@ -108,9 +113,9 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
     ),
     galleryButtonStyle: ActionButtonStyle(
       icon: Icons.photo,
-      iconColor: buttonTheme.colorScheme?.onPrimary,
+      iconColor: buttonTheme.colorScheme?.onTertiary,
       iconDecoration: BoxDecoration(
-        color: buttonTheme.colorScheme?.primary,
+        color: buttonTheme.colorScheme?.tertiary,
         shape: BoxShape.circle,
       ),
     ),
@@ -132,22 +137,22 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
     ),
     closeMenuButtonStyle: ActionButtonStyle(
       icon: Icons.close,
-      iconColor: buttonTheme.colorScheme?.onPrimary,
+      iconColor: buttonTheme.colorScheme?.onError,
       iconDecoration: BoxDecoration(
-        color: buttonTheme.colorScheme?.primary,
+        color: buttonTheme.colorScheme?.error,
         shape: BoxShape.circle,
       ),
     ),
-    actionButtonBarDecoration: BoxDecoration(
-      color: theme.scaffoldBackgroundColor,
+    actionButtonBarDecoration: const BoxDecoration(
+      color: Colors.transparent,
     ),
     fileAttachmentStyle: FileAttachmentStyle(
       decoration: BoxDecoration(
-        color: scheme.secondary,
+        color: scheme.tertiary,
         borderRadius: const BorderRadius.all(Radius.circular(20)),
       ),
-      filenameStyle: TextStyle(color: scheme.onSecondary),
-      filetypeStyle: TextStyle(color: scheme.onSecondary.withValues(alpha: .5)),
+      filenameStyle: TextStyle(color: scheme.onTertiary),
+      filetypeStyle: TextStyle(color: scheme.onTertiary.withValues(alpha: .5)),
       iconDecoration: BoxDecoration(
         color: scheme.surfaceContainer,
         shape: BoxShape.circle,
