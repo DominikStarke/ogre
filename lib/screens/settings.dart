@@ -22,6 +22,7 @@ class _SettingsState extends State<Settings> {
   LlmConfigStoreModel _selectedConfig = LlmConfigStoreModel();
   final _selectedConfigName = ValueNotifier<String>("");
   AppConfigStoreModel _appConfig = AppConfigStoreModel();
+  bool _obscureApiKey = true;
 
   @override
   void initState() {
@@ -255,9 +256,20 @@ class _SettingsState extends State<Settings> {
                 TextFormField(
                   key: UniqueKey(),
                   initialValue: _selectedConfig.apiKey,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'API Key',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureApiKey ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureApiKey = !_obscureApiKey;
+                        });
+                      },
+                    ),
                   ),
+                  obscureText: _obscureApiKey,
                   onSaved: (value) {
                     _selectedConfig.apiKey = value ?? "";
                   },
