@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-ColorScheme get darkScheme => ColorScheme.fromSeed(
-  seedColor: Colors.cyan,
+ColorScheme getDarkScheme ([Color color = Colors.teal]) => ColorScheme.fromSeed(
+  seedColor: color,
   contrastLevel: .2,
   dynamicSchemeVariant: DynamicSchemeVariant.fruitSalad,
   brightness: Brightness.dark
 );
 
-ColorScheme get lightScheme => ColorScheme.fromSeed(
-  seedColor: Colors.cyan,
+ColorScheme getLightScheme ([Color color = Colors.teal]) => ColorScheme.fromSeed(
+  seedColor: color,
   contrastLevel: .2,
   dynamicSchemeVariant: DynamicSchemeVariant.fruitSalad,
   brightness: Brightness.light
@@ -32,10 +32,15 @@ InputDecorationTheme get inputDecorationTheme => const InputDecorationTheme(
   border: OutlineInputBorder(),
 );
 
-ThemeData getTheme(Brightness brightness) {
+ThemeData getTheme({
+  required Brightness brightness,
+  required Color color
+}) {
   return ThemeData(
     useMaterial3: true,
-    colorScheme: brightness == Brightness.light ? lightScheme : darkScheme,
+    colorScheme: brightness == Brightness.light
+      ? getLightScheme(color)
+      : getDarkScheme(color),
     textTheme: textTheme,
     inputDecorationTheme: inputDecorationTheme,
   );

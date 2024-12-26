@@ -30,8 +30,8 @@ class OgreApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Ogre",
-      theme: getTheme(Brightness.light),
-      darkTheme: getTheme(Brightness.dark),
+      theme: getTheme(brightness: Brightness.light, color: Colors.teal),
+      darkTheme: getTheme(brightness: Brightness.dark, color: Colors.teal),
       home: const AppController(
         loading: Center(
           child: CircularProgressIndicator(),
