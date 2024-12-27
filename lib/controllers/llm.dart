@@ -51,6 +51,7 @@ class LlmControllerState extends State<LlmController> {
     _configs.clear();
     _configs.addAll(configs);
     await _configStore.saveAll(configs);
+    configChanged.value = configs;
   }
 
   void configure (LlmConfigStoreModel config) {

@@ -4,7 +4,6 @@ import 'dart:io' show exit;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:keypress_simulator/keypress_simulator.dart';
 import 'package:ogre/controllers/clipboard.dart';
 import 'package:ogre/helpers/hotkey_entry.dart';
 import 'package:tray_manager/tray_manager.dart';
