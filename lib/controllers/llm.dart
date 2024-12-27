@@ -89,7 +89,6 @@ class LlmControllerState extends State<LlmController> {
       );
     }
 
-    configChanged.value = configs;
     saveConfigs(configs);
   }
 
