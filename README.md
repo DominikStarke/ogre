@@ -9,6 +9,8 @@ Copy something to your clipboard and press ```shift + home```.
 ### Demo
 [https://github.com/user-attachments/assets/2e2904f9-ad0c-469b-a5b5-52d482631c5f](https://github.com/user-attachments/assets/01913f44-8885-40e5-b1df-079a0b14a8ba)
 
+[https://github.com/user-attachments/assets/7fea33f2-b56e-46ef-aa5f-5a73a73c6f38](https://github.com/user-attachments/assets/7fea33f2-b56e-46ef-aa5f-5a73a73c6f38)
+
 ### Setup
 The following api providers are supported:
 * openwebui
