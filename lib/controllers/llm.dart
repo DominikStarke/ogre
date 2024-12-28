@@ -5,6 +5,10 @@ import 'package:ogre/controllers/app.dart';
 import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/llm_providers/const.dart';
 import 'package:ogre/llm_providers/openwebui.dart';
+import 'package:ogre/llm_providers/tool.dart';
+import 'package:ogre/tools/search_images.dart';
+import 'package:ogre/tools/search_videos.dart';
+import 'package:ogre/tools/search_web.dart';
 
 class LlmController extends StatefulWidget {
   final Widget child;
@@ -29,9 +33,13 @@ class LlmControllerState extends State<LlmController> {
     return _configChanged!;
   }
 
+  final List<LlmToolCall> _tools = [];
+
   final List<LlmConfigStoreModel> _configs = [];
   List<LlmConfigStoreModel> get configs => [..._configs];
   LlmConfigStoreModel get selectedConfig => _configs.firstWhere((config) => config.isDefault, orElse: () => _configs.first);
+
+  late final clipboard = AppController.of(context).clipboard;
 
   LlmProvider _llmProvider = EchoProvider();
   LlmProvider? get llmProvider => _llmProvider;
@@ -89,6 +97,15 @@ class LlmControllerState extends State<LlmController> {
       );
     }
 
+    _llmProvider = ToolProvider(
+      tools: [
+        SearchWebTool(),
+        SearchVideosTool(),
+        SearchImagesTool(),
+      ],
+      provider: _llmProvider
+    );
+
     saveConfigs(configs);
   }
 
@@ -102,32 +119,19 @@ class LlmControllerState extends State<LlmController> {
       return;
     }
 
-    if (attachments.isEmpty) {
-      final clipboard = AppController.of(context).clipboard;
-      yield* llmProvider!.sendMessageStream(
-        prompt,
-        attachments: [
-          ...attachments,
-          ...clipboard.files,
-          ...clipboard.texts,
-          ...clipboard.images
-        ],
-      );
-      clipboard.clear();
-    } else {
-      yield* llmProvider!.sendMessageStream(prompt, attachments: attachments);
-    }
+    yield* llmProvider!.sendMessageStream(prompt, attachments: [
+      ...attachments,
+      ...clipboard.files,
+      ...clipboard.texts,
+      ...clipboard.images
+    ]);
+    clipboard.clear();
   }
 
   @override
   void initState() {
     super.initState();
     loadConfigs();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
