@@ -37,6 +37,9 @@ class LlmToolCall {
     required this.parameters,
   });
 
+  /// Creates an LlmToolCall instance from a JSON map.
+  /// 
+  /// [json] - The JSON map containing the task, function name, and parameters.
   static LlmToolCall? fromJson(Map<String, dynamic>? json) {
     if (json == null) return null;
     try {
@@ -50,6 +53,9 @@ class LlmToolCall {
     }
   }
 
+  /// Creates an LlmToolCall instance from a JSON string.
+  /// 
+  /// [jsonString] - The JSON string containing the task, function name, and parameters.
   static LlmToolCall? fromJsonString(String jsonString) {
     try {
       final jsonData = json.decode(jsonString);
@@ -68,6 +74,10 @@ class LlmToolCall {
 /// appropriate tool. This enables the integration of various tools with LLMs, enhancing their functionality
 /// and allowing them to perform complex tasks.
 ///
+/// The `searchPattern` parameter is a regular expression pattern used to detect tool call requests within
+/// the message content. The `stopPattern` parameter is used to identify the end of a tool call request.
+/// The `searchPattern` is only used if the `stopPattern` is found in the message content.
+///
 /// Usage:
 /// ```
 /// ToolProvider(
@@ -76,7 +86,9 @@ class LlmToolCall {
 ///     SearchWebTool(),
 ///     SearchVideosTool(),
 ///     SearchImagesTool(),
-///   ]
+///   ],
+///   searchPattern: r"<flutter_tool>([\s\S]*?)<\/flutter_tool>", // optional
+///   stopPattern: "</flutter_tool>" // optional
 /// )
 /// ```
 class ToolProvider extends LlmProvider with ChangeNotifier {
@@ -86,11 +98,17 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
   final String _stopPattern;
   bool _toolCalled = false;
 
+  /// Creates a ToolProvider instance.
+  /// 
+  /// [provider] - The LLM provider to wrap.
+  /// [tools] - A list of tools that can be called.
+  /// [searchPattern] - A regular expression pattern used to detect tool call requests within the message content.
+  /// [stopPattern] - A pattern used to identify the end of a tool call request.
   ToolProvider({
     required LlmProvider provider,
     List<LlmTool> tools = const [],
-    String searchPattern = r"<tool_call>([\s\S]*?)<\/tool_call>",
-    String stopPattern = "</tool_call>"
+    String searchPattern = r"<flutter_tool>([\s\S]*?)<\/flutter_tool>",
+    String stopPattern = "</flutter_tool>"
   }): _provider = provider, _searchPattern = searchPattern, _stopPattern = stopPattern, _tools = tools {
     _provider.addListener(notifyListeners);
   }
