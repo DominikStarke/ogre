@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
@@ -34,8 +33,8 @@ extension _OwuiMessage on ChatMessage {
 class _OwuiChatRequest {
   final String model;
   final List<ChatMessage> messages;
-  final List<Map<String, dynamic>>? files;
-  final List<Map<String, dynamic>>? images;
+  final List<_OwuiFileAttachment>? files;
+  final List<_OwuiImageAttachment>? images;
 
   /// Creates an instance of [_OwuiChatRequest].
   ///
@@ -54,10 +53,10 @@ class _OwuiChatRequest {
   Map<String, dynamic> toJson() => {
     'model': model,
     'stream': true,
-    'messages': messages.map((message) => message.toOwuiJson( /// Even thoug this works 
-      message == messages.lastWhere((m) => m.origin == MessageOrigin.user) ? images : null)
+    'messages': messages.map((message) => message.toOwuiJson( // This isn't very nice.
+      message == messages.firstWhere((m) => m.origin == MessageOrigin.user) ? images?.map((image) => image.toJson()).toList() : null)
     ).toList(),
-    'files': files,
+    'files': files?.map((file) => file.toJson()).toList(),
   };
 
   String toJsonString() => jsonEncode(toJson());
@@ -103,11 +102,54 @@ class _OwuiChatResponseChoice {
   }
 }
 
+/// Internal open-webui json encoder / decoder
+class _OwuiImageAttachment {
+  final String type;
+  final Map<String, String> imageUrl;
+  final String name;
+
+  _OwuiImageAttachment({
+    required this.type,
+    required this.imageUrl,
+    required this.name,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'image_url': imageUrl,
+    'name': name,
+  };
+
+  factory _OwuiImageAttachment.fromImageAttachment(ImageFileAttachment attachment) {
+    final base64Image = base64Encode(attachment.bytes);
+    return _OwuiImageAttachment(
+      type: 'image_url',
+      imageUrl: {'url': "data:${attachment.mimeType};base64,$base64Image"},
+      name: attachment.name,
+    );
+  }
+}
+
+/// Internal open-webui json encoder / decoder
+class _OwuiFileAttachment {
+  final String type;
+  final String id;
+
+  _OwuiFileAttachment({
+    required this.type,
+    required this.id,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'id': id,
+  };
+}
 
 /// A provider for [open-webui](https://openwebui.com/)
 /// Use open-webui as unified chat provider.
-class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
-  /// Creates an [OpenwebuiProvider] instance with an optional chat history.
+class OpenWebUIProvider extends LlmProvider with ChangeNotifier {
+  /// Creates an [OpenWebUIProvider] instance with an optional chat history.
   ///
   /// The [history] parameter is an optional iterable of [ChatMessage] objects
   /// representing the chat history
@@ -127,10 +169,10 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
   ///   ),
   /// )
   /// ```
-  OpenwebuiProvider({
+  OpenWebUIProvider({
     Iterable<ChatMessage>? history,
     required String model,
-    required String baseUrl,
+    String baseUrl = 'http://localhost:3000/api',
     String? apiKey,
   }): _history = history?.toList() ?? [],
       _model = model,
@@ -141,8 +183,8 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
   final String _model;
   final String _host;
   final String? _apiKey;
-  final List<Map<String, String>> _fileAttachments = [];
-  final List<Map<String, dynamic>> _imageAttachments = [];
+  final List<_OwuiFileAttachment> _fileAttachments = [];
+  final List<_OwuiImageAttachment> _imageAttachments = [];
   final _emptyMessage = ChatMessage(origin: MessageOrigin.llm, text: null, attachments: []);
 
   @override
@@ -163,22 +205,20 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
     String prompt, {
     Iterable<Attachment> attachments = const [],
   }) async* {
-    _imageAttachments.clear();
-    final userMessage = ChatMessage(text: prompt, attachments: attachments, origin: MessageOrigin.user);
-    final llmMessage = ChatMessage(text: null, attachments: [], origin: MessageOrigin.llm);
+    final userMessage = ChatMessage.user(prompt, attachments);
+    final llmMessage = ChatMessage.llm();
     _history.addAll([userMessage, llmMessage]);
 
     yield* _generateStream(_history);
-    notifyListeners();
+    // notifyListeners();
   }
 
   Stream<String> _generateStream(List<ChatMessage> messages) async* {
-    _imageAttachments.clear();
     final files = messages.lastWhere((m) => m.origin == MessageOrigin.user, orElse: () => _emptyMessage).attachments;
     final llmMessage = messages.last;
     if(files.isNotEmpty) {
       for (var file in files) {
-        await _uploadAttachment(file);
+        await _handleAttachment(file);
       }
     }
 
@@ -195,45 +235,31 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
       ).toJsonString();
 
     final httpResponse = await http.Client().send(httpRequest);
-
     if (httpResponse.statusCode == 200) {
-      await for (var text in httpResponse.stream.transform(utf8.decoder)) {
-        final messages = text.split('\n');
-        for (var message in messages) {
-          if (message.startsWith('data: [DONE]')) {
-            return;
-          }
-          if (message.isEmpty) continue;
-          final cleanedMessage = message.replaceFirst('data: ', '').trim();
-          try {
-            final chatResponse = _OwuiChatResponse.fromJsonString(cleanedMessage);
-            for (var choice in chatResponse.choices) {
-              llmMessage.append(choice.message.text ?? '');
-              yield choice.message.text ?? '';
-            }
-          } catch (e) {
-            // just skip?
-          }
+      await for (
+        final message in httpResponse.stream
+          .toStringStream().transform(const LineSplitter())
+      ) {
+        if (message.startsWith('data: [DONE]')) {
+          return;
         }
-        llmMessage.append('');
-        yield '';
+        if (message.isEmpty) continue;
+        final cleanedMessage = message.replaceFirst('data: ', '').trim();
+        final chatResponse = _OwuiChatResponse.fromJsonString(cleanedMessage);
+        for (var choice in chatResponse.choices) {
+          llmMessage.append(choice.message.text ?? '');
+          yield choice.message.text ?? '';
+        }
       }
     } else {
       throw Exception('HTTP request failed. Status: ${httpResponse.statusCode}, Reason: ${httpResponse.reasonPhrase}');
     }
   }
 
-  Future<void> _uploadAttachment(Attachment attachment) async {
+  Future<void> _handleAttachment(Attachment attachment) async {
     if(attachment is ImageFileAttachment) {
-      final base64Image = base64Encode(attachment.bytes);
-      _imageAttachments.add({
-        'type': 'image_url',
-        'image_url': {
-          'url': "data:${attachment.mimeType};base64,$base64Image"
-        },
-        'name': attachment.name,
-      });
-      log(_imageAttachments.toString());
+      _imageAttachments.clear(); // Only one image can be attached at a time? At least with llama3.2-vision + ollama.
+      _imageAttachments.add(_OwuiImageAttachment.fromImageAttachment(attachment));
     } else if(attachment is FileAttachment) {
       final uri = Uri.parse('$_host/v1/files/'); // Replace with your OpenWebUI endpoint
       final request = http.MultipartRequest('POST', uri)
@@ -248,10 +274,10 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
         final jsonResponse = json.decode(responseBody);
-        _fileAttachments.add({
-          'type': 'file',
-          'id': jsonResponse['id'].toString()
-        });
+        _fileAttachments.add(_OwuiFileAttachment(
+          type: 'file',
+          id: jsonResponse['id'].toString(),
+        ));
       } else {
         throw Exception('Failed to upload file: ${response.reasonPhrase}');
       }
@@ -259,10 +285,10 @@ class OpenwebuiProvider extends LlmProvider with ChangeNotifier {
   }
 
   @override
-  get history => List.from(_history);
+  Iterable<ChatMessage> get history => List.from(_history);
 
   @override
-  set history(history) {
+  set history(Iterable<ChatMessage> history) {
     _history.clear();
     _history.addAll(history);
     notifyListeners();

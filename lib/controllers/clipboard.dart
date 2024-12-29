@@ -28,7 +28,7 @@ class ClipboardController extends ChangeNotifier {
   }
 
   List<Attachment> get images {
-    return _images.map((img) => FileAttachment(
+    return _images.map((img) => ImageFileAttachment(
       name: 'clipboardImage',
       mimeType: 'image/jpeg',
       bytes: img,

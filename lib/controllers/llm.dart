@@ -33,8 +33,6 @@ class LlmControllerState extends State<LlmController> {
     return _configChanged!;
   }
 
-  final List<LlmToolCall> _tools = [];
-
   final List<LlmConfigStoreModel> _configs = [];
   List<LlmConfigStoreModel> get configs => [..._configs];
   LlmConfigStoreModel get selectedConfig => _configs.firstWhere((config) => config.isDefault, orElse: () => _configs.first);
@@ -66,7 +64,7 @@ class LlmControllerState extends State<LlmController> {
 
     config.isDefault = true;
     if (config.provider == LlmProviderType.openwebui) {
-      _llmProvider = OpenwebuiProvider(
+      _llmProvider = OpenWebUIProvider(
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
