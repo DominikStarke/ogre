@@ -328,11 +328,10 @@ packages:
   flutter_ai_toolkit:
     dependency: "direct main"
     description:
-      name: flutter_ai_toolkit
-      sha256: "77e69d195f1c8939c7790a7f74ba998881582fa0dc312746d73c4365f705512c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.7"
+      path: "packages/third_party/flutter_ai_toolkit"
+      relative: true
+    source: path
+    version: "0.6.8-wip"
   flutter_context_menu:
     dependency: transitive
     description:

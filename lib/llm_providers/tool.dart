@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
+import 'package:ogre/tools/markdown_fragment.dart';
 
 /// The LlmTool class represents a tool that can be called by the ToolProvider.
 /// Each tool must implement the `functionName` getter and the `call` method.
@@ -16,6 +17,8 @@ abstract class LlmTool {
   /// 
   /// [call] - The LlmToolCall instance containing the task, function name, and parameters.
   Future<void> call(LlmToolCall call);
+
+  ChatMessageFragment getFrament(LlmToolCall call);
 }
 
 /// The LlmToolCall class represents a call to a tool with specific parameters.
@@ -94,9 +97,11 @@ class LlmToolCall {
 class ToolProvider extends LlmProvider with ChangeNotifier {
   final LlmProvider _provider;
   final List<LlmTool> _tools;
-  final String _searchPattern;
+  final String _startPattern;
   final String _stopPattern;
-  bool _toolCalled = false;
+
+  String get stopPattern => _stopPattern;
+  String get startPattern => _startPattern;
 
   /// Creates a ToolProvider instance.
   /// 
@@ -107,46 +112,84 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
   ToolProvider({
     required LlmProvider provider,
     List<LlmTool> tools = const [],
-    String searchPattern = r"<flutter_tool>([\s\S]*?)<\/flutter_tool>",
-    String stopPattern = "</flutter_tool>"
-  }): _provider = provider, _searchPattern = searchPattern, _stopPattern = stopPattern, _tools = tools {
+    String stopPattern = "</flutter_tool>",
+    String startPattern = "<flutter_tool>",
+  }): _provider = provider, _startPattern = startPattern, _stopPattern = stopPattern, _tools = tools {
     _provider.addListener(notifyListeners);
   }
 
+  MarkdownFragment _textFragment = MarkdownFragment(text: '');
+  final StringBuffer _messageBuffer = StringBuffer();
+
   @override
   Stream<String> generateStream(String prompt, {Iterable<Attachment> attachments = const []}) async* {
-    _toolCalled = false;
+    _textFragment = MarkdownFragment(text: '');
     final stream = _provider.sendMessageStream(prompt, attachments: attachments);
 
     await for (final chunk in stream) {
-      _checkTool();
+      _checkTool(chunk);
       yield chunk;
     }
+
+    _messageBuffer.clear();
   }
 
   @override
   Stream<String> sendMessageStream(String prompt, {Iterable<Attachment> attachments = const []}) async* {
-    _toolCalled = false;
+    _textFragment = MarkdownFragment(text: '');
     final stream = _provider.sendMessageStream(prompt, attachments: attachments);
 
     await for (final chunk in stream) {
-      if(!_toolCalled) _checkTool();
+      _checkTool(chunk);
       yield chunk;
     }
+
+    _messageBuffer.clear();
   }
 
   /// Checks if a tool needs to be called based on the message content.
   /// If a tool call pattern is detected, it extracts the tool call information and invokes the tool.
-  void _checkTool() {
-    final message = history.last;
-    if(message.text?.contains(_stopPattern) == true) {
-      _toolCalled = true;
-      final matches = RegExp(_searchPattern).allMatches(message.text ?? '');
-      for (final match in matches) {
-        final text = match.group(1)?.trim();
-        _callTool(LlmToolCall.fromJsonString(text ?? ''));
-      }
+  bool _checkTool(String chunk) {
+    final llmMessage = history.last;
+    final fragments = llmMessage.fragments;
+    if(fragments.isEmpty) {
+      fragments.add(_textFragment);
     }
+
+    _messageBuffer.write(chunk);
+    final message = _messageBuffer.toString();
+
+    if (message.contains(_stopPattern) && message.contains(startPattern)) {
+      fragments.removeLast();
+      _textFragment.text = "";
+
+      final startBlocks = message.split(_startPattern); // guaranteed len 2
+      
+      for (final block in startBlocks) {
+        final isStopBlock = block.contains(_stopPattern);
+        if(isStopBlock) {
+          final blocks = block.split(_stopPattern);
+          final text = blocks.last.trim(); // Create MarkdownFragment
+          _callTool(LlmToolCall.fromJsonString(blocks.first));
+          if(block != startBlocks.last) {
+            fragments.add(MarkdownFragment(text: text)); // Create MarkdownFragment
+          }
+        } else if(block == startBlocks.last) {
+          _textFragment.text = block;
+        } else {
+          fragments.add(MarkdownFragment(text: block));
+        }
+      }
+
+      fragments.add(_textFragment);
+
+      _messageBuffer.clear();
+
+      return false;
+    } else {
+      _textFragment.text = _messageBuffer.toString();
+    }
+    return false;
   }
 
   /// Calls the appropriate tool based on the LlmToolCall instance.
@@ -154,9 +197,11 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
   /// [call] - The LlmToolCall instance containing the task, function name, and parameters.
   void _callTool(LlmToolCall? call) {
     if(call == null) return;
-    final toolInstance = _tools.where((t) => t.functionName == call.functionName).firstOrNull;
-    if(toolInstance != null) {
-      toolInstance.call(call);
+    final tool = _tools.where((t) => t.functionName == call.functionName).firstOrNull;
+
+    if(tool != null) {
+      history.last.fragments.add(tool!.getFrament(call));
+      tool.call(call);
     } else {
       log("Tool ${call.functionName} not found. Parameters: ${call.parameters}");
     }

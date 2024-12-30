@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_providers/flutter_ai_providers.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:ogre/controllers/app.dart';
 import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/llm_providers/const.dart';
-import 'package:ogre/llm_providers/openwebui.dart';
 import 'package:ogre/llm_providers/tool.dart';
+import 'package:ogre/tools/open_broswer.dart';
 import 'package:ogre/tools/search_images.dart';
 import 'package:ogre/tools/search_videos.dart';
 import 'package:ogre/tools/search_web.dart';
@@ -68,6 +69,7 @@ class LlmControllerState extends State<LlmController> {
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
+        history: _llmProvider.history,
       );
     } else if (config.provider == LlmProviderType.openai) {
       _llmProvider = OpenAIProvider(
@@ -77,6 +79,7 @@ class LlmControllerState extends State<LlmController> {
         headers: config.header,
         organization: config.organization,
         queryParams: config.queryParams,
+
       );
     } else if (config.provider == LlmProviderType.anthropic) {
       _llmProvider = AnthropicProvider(
@@ -97,6 +100,7 @@ class LlmControllerState extends State<LlmController> {
 
     _llmProvider = ToolProvider(
       tools: [
+        OpenBrowserTool(),
         SearchWebTool(),
         SearchVideosTool(),
         SearchImagesTool(),
@@ -136,6 +140,25 @@ class LlmControllerState extends State<LlmController> {
   void dispose() {
     super.dispose();
     configChanged.dispose();
+  }
+
+  Widget responseBuilder (BuildContext context, ChatMessage response) {
+    final fragments = response.fragments;
+    if(fragments.isNotEmpty) {
+      var responseText = (response.text ?? '');
+      responseText = responseText.replaceAll(RegExp(r'<flutter_tool>.*?<\/flutter_tool>', dotAll: true), '');
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for(final fragment in fragments)
+            fragment.builder(context),
+            // if(fragment is SearchWebToolFragment)
+          // if(responseText.isNotEmpty) Markdown(data: responseText, shrinkWrap: true)
+        ]
+      );
+    }
+
+    return Markdown(data: response.text ?? '', shrinkWrap: true);
   }
 
   @override
