@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
-import 'package:ogre/tools/markdown_fragment.dart';
 
 /// The LlmTool class represents a tool that can be called by the ToolProvider.
 /// Each tool must implement the `functionName` getter and the `call` method.
@@ -118,12 +117,10 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
     _provider.addListener(notifyListeners);
   }
 
-  MarkdownFragment _textFragment = MarkdownFragment(text: '');
   final StringBuffer _messageBuffer = StringBuffer();
 
   @override
   Stream<String> generateStream(String prompt, {Iterable<Attachment> attachments = const []}) async* {
-    _textFragment = MarkdownFragment(text: '');
     final stream = _provider.sendMessageStream(prompt, attachments: attachments);
 
     await for (final chunk in stream) {
@@ -136,7 +133,6 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
 
   @override
   Stream<String> sendMessageStream(String prompt, {Iterable<Attachment> attachments = const []}) async* {
-    _textFragment = MarkdownFragment(text: '');
     final stream = _provider.sendMessageStream(prompt, attachments: attachments);
 
     await for (final chunk in stream) {
@@ -150,44 +146,20 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
   /// Checks if a tool needs to be called based on the message content.
   /// If a tool call pattern is detected, it extracts the tool call information and invokes the tool.
   bool _checkTool(String chunk) {
-    final llmMessage = history.last;
-    final fragments = llmMessage.fragments;
-    if(fragments.isEmpty) {
-      fragments.add(_textFragment);
-    }
-
     _messageBuffer.write(chunk);
     final message = _messageBuffer.toString();
 
     if (message.contains(_stopPattern) && message.contains(startPattern)) {
-      fragments.removeLast();
-      _textFragment.text = "";
-
       final startBlocks = message.split(_startPattern); // guaranteed len 2
       
       for (final block in startBlocks) {
         final isStopBlock = block.contains(_stopPattern);
         if(isStopBlock) {
           final blocks = block.split(_stopPattern);
-          final text = blocks.last.trim(); // Create MarkdownFragment
           _callTool(LlmToolCall.fromJsonString(blocks.first));
-          if(block != startBlocks.last) {
-            fragments.add(MarkdownFragment(text: text)); // Create MarkdownFragment
-          }
-        } else if(block == startBlocks.last) {
-          _textFragment.text = block;
-        } else {
-          fragments.add(MarkdownFragment(text: block));
         }
       }
-
-      fragments.add(_textFragment);
-
       _messageBuffer.clear();
-
-      return false;
-    } else {
-      _textFragment.text = _messageBuffer.toString();
     }
     return false;
   }
@@ -200,7 +172,7 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
     final tool = _tools.where((t) => t.functionName == call.functionName).firstOrNull;
 
     if(tool != null) {
-      history.last.fragments.add(tool!.getFrament(call));
+      history.last.leading.add(tool.getFrament(call));
       tool.call(call);
     } else {
       log("Tool ${call.functionName} not found. Parameters: ${call.parameters}");

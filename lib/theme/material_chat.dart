@@ -10,7 +10,7 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
   return LlmChatViewStyle(
     backgroundColor: theme.scaffoldBackgroundColor,
     progressIndicatorColor: scheme.onPrimaryContainer,
-    userMessageStyle: UserMessageStyle(
+    userMessageStyle: ChatMessageStyle(
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
         borderRadius: const BorderRadius.only(
@@ -21,7 +21,7 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
       ),
       textStyle: TextStyle(color: scheme.onSurface),
     ),
-    llmMessageStyle: LlmMessageStyle(
+    llmMessageStyle: ChatMessageStyle(
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
         borderRadius: const BorderRadius.only(

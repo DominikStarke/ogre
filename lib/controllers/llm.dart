@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_providers/flutter_ai_providers.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:ogre/controllers/app.dart';
 import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/llm_providers/const.dart';
@@ -112,7 +111,7 @@ class LlmControllerState extends State<LlmController> {
   }
 
   void clearChat () {
-    configure(selectedConfig);
+    _llmProvider.history = [];
   }
 
   Stream<String> clipboardAttachmentSender (String prompt, {required Iterable<Attachment> attachments}) async* {
@@ -140,25 +139,6 @@ class LlmControllerState extends State<LlmController> {
   void dispose() {
     super.dispose();
     configChanged.dispose();
-  }
-
-  Widget responseBuilder (BuildContext context, ChatMessage response) {
-    final fragments = response.fragments;
-    if(fragments.isNotEmpty) {
-      var responseText = (response.text ?? '');
-      responseText = responseText.replaceAll(RegExp(r'<flutter_tool>.*?<\/flutter_tool>', dotAll: true), '');
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for(final fragment in fragments)
-            fragment.builder(context),
-            // if(fragment is SearchWebToolFragment)
-          // if(responseText.isNotEmpty) Markdown(data: responseText, shrinkWrap: true)
-        ]
-      );
-    }
-
-    return Markdown(data: response.text ?? '', shrinkWrap: true);
   }
 
   @override

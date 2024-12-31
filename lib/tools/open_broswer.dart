@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:ogre/llm_providers/tool.dart';
 import 'package:ogre/tools/default_tool_fragment.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,9 +19,10 @@ class OpenBrowserTool extends LlmTool {
   @override
   DefaultToolFragment getFrament(LlmToolCall call) {
     return DefaultToolFragment(
-      title: call.functionName,
-      subTitle: call.task,
-      body: call.parameters['url'],
+      // title: call.functionName,
+      // subTitle: call.task,
+      icon: Icons.open_in_browser,
+      body: Text(call.parameters['url'] ?? ""),
     );
   }
 }

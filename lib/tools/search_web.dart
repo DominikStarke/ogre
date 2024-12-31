@@ -7,25 +7,33 @@ class SearchWebTool extends LlmTool {
   @override
   String get functionName => 'searchWeb';
 
+  launch(String query) async {
+    final url = Uri(
+      scheme: 'http',
+      host: 'localhost',
+      path: 'search',
+      port: 4000,
+      queryParameters: {
+        "q": query,
+        "language": "all",
+        "time_range": "",
+        "safesearch": "0",
+        "categories": "general"
+      }
+    );
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Future<void> call(LlmToolCall call) async {
     final queries = call.parameters["queries"];
     if(queries is List) {
       for(final query in queries) {
-        final uri = Uri(
-          scheme: 'http',
-          host: 'localhost',
-          path: 'search',
-          port: 4000,
-          queryParameters: {
-            "q": query,
-            "language": "all",
-            "time_range": "",
-            "safesearch": "0",
-            "categories": "general"
-          }
-        );
-        await launchUrl(uri);
+        await launch(query);
         break; // Break the loop after one iteration
       }
     }
@@ -34,9 +42,19 @@ class SearchWebTool extends LlmTool {
   @override
   DefaultToolFragment getFrament(LlmToolCall call) {
     return DefaultToolFragment(
-      title: call.functionName,
-      subTitle: call.task,
-      body: Text('Searching the web for: ${call.parameters["queries"].join(', ')}'),
+      // title: "Search the web",
+      // subTitle: call.task,
+      icon: Icons.search,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for(final query in call.parameters["queries"])
+            TextButton(
+              onPressed: () => launch(query),
+              child: Text(query)
+            ),
+        ],
+      ),
     );
   }
 }

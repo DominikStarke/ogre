@@ -1,0 +1,6 @@
+[submodule "packages/third_party/flutter_ai_toolkit"]
+	path = packages/third_party/flutter_ai_toolkit
+	url = https://github.com/DominikStarke/flutter_ai_toolkit.git
+[submodule "packages/third_party/flutter_ai_community"]
+	path = packages/third_party/flutter_ai_community
+	url = https://github.com/DominikStarke/flutter_ai_community.git
