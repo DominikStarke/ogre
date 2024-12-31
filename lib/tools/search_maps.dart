@@ -3,18 +3,15 @@ import 'package:ogre/llm_providers/tool.dart';
 import 'package:ogre/tools/default_tool_fragment.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SearchVideosTool extends LlmTool {
+class SearchMapsTool extends LlmTool {
   @override
-  String get toolName => 'searchVideos';
+  String get toolName => 'searchMaps';
 
   launch(String query) async {
     final url = Uri(
       scheme: 'https',
-      host: 'www.youtube.com',
-      path: 'results',
-      queryParameters: {
-        "search_query": query,
-      }
+      host: 'www.google.com',
+      path: 'maps/search/${Uri.encodeComponent(query)}',
     );
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
@@ -26,10 +23,9 @@ class SearchVideosTool extends LlmTool {
   @override
   Future<void> call(LlmToolCall call) async {
     final queries = call.parameters["queries"];
-
     if(queries is List) {
       for(final query in queries) {
-        launch(query);
+        await launch(query);
         break; // Break the loop after one iteration
       }
     }
@@ -38,8 +34,9 @@ class SearchVideosTool extends LlmTool {
   @override
   DefaultToolFragment getFrament(LlmToolCall call) {
     return DefaultToolFragment(
-      title: call.functionName,
-      subTitle: call.task,
+      // title: "Search the web",
+      // subTitle: call.task,
+      icon: Icons.location_on_rounded,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

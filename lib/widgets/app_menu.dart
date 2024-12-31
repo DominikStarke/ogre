@@ -10,7 +10,8 @@ class AppMenu extends StatelessWidget {
     return ListenableBuilder(
       listenable: LlmController.of(context).configChanged,
       builder: (context, result) {
-        final configs = LlmController.of(context).configs;
+        final controller =  LlmController.of(context);
+        final configs = controller.configs;
         return Padding(
           padding: const EdgeInsets.all(10.0),
           child: MenuAnchor(
@@ -41,30 +42,30 @@ class AppMenu extends StatelessWidget {
 
               const Divider(),
 
-              ...configs.map((config) {
-                return MenuItemButton(
-                  onPressed: () {
-                    LlmController.of(context).configure(config);
-                  },
-                  child: Row(
-                    children: [
-                      Checkbox(
-                        value: config.isDefault,
-                        onChanged: (bool? value) {
-                          LlmController.of(context).configure(config);
-                        },
-                      ),
-                      Text(config.name),
-                    ],
-                  ),
-                );
-              }),
+              for(final config in configs) MenuItemButton(
+                onPressed: () {
+                  controller.configure(config);
+                  controller.saveConfigs(configs);
+                },
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: config.isDefault,
+                      onChanged: (bool? value) {
+                        controller.configure(config);
+                        controller.saveConfigs(configs);
+                      },
+                    ),
+                    Text(config.name),
+                  ],
+                ),
+              ),
 
               const Divider(),
 
               MenuItemButton(
                 onPressed: () {
-                  LlmController.of(context).clearChat();
+                  controller.clearChat();
                 },
                 child: Text('Clear chat', style: TextStyle(color: scheme.error)),
               ),

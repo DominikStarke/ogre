@@ -7,6 +7,7 @@ import 'package:ogre/llm_providers/const.dart';
 import 'package:ogre/llm_providers/tool.dart';
 import 'package:ogre/tools/open_broswer.dart';
 import 'package:ogre/tools/search_images.dart';
+import 'package:ogre/tools/search_maps.dart';
 import 'package:ogre/tools/search_videos.dart';
 import 'package:ogre/tools/search_web.dart';
 
@@ -54,7 +55,11 @@ class LlmControllerState extends State<LlmController> {
     _configs.clear();
     _configs.addAll(configs);
     await _configStore.saveAll(configs);
-    configChanged.value = configs;
+  }
+
+  Future<void> configureAndSave(LlmConfigStoreModel config) async {
+    configure(config);
+    await saveConfigs(configs);
   }
 
   void configure (LlmConfigStoreModel config) {
@@ -78,8 +83,7 @@ class LlmControllerState extends State<LlmController> {
         headers: config.header,
         organization: config.organization,
         queryParams: config.queryParams,
-
-      );
+      )..history = _llmProvider.history;
     } else if (config.provider == LlmProviderType.anthropic) {
       _llmProvider = AnthropicProvider(
         baseUrl: config.host,
@@ -87,14 +91,14 @@ class LlmControllerState extends State<LlmController> {
         apiKey: config.apiKey,
         headers: config.header,
         queryParams: config.queryParams,
-      );
+      )..history = _llmProvider.history;
     } else if (config.provider == LlmProviderType.ollama) {
       _llmProvider = OllamaProvider(
         baseUrl: config.host,
         model: config.model,
         headers: config.header,
         queryParams: config.queryParams,
-      );
+      )..history = _llmProvider.history;
     }
 
     _llmProvider = ToolProvider(
@@ -103,11 +107,12 @@ class LlmControllerState extends State<LlmController> {
         SearchWebTool(),
         SearchVideosTool(),
         SearchImagesTool(),
+        SearchMapsTool(),
       ],
       provider: _llmProvider
     );
 
-    saveConfigs(configs);
+    configChanged.value = configs;
   }
 
   void clearChat () {

@@ -10,7 +10,7 @@ abstract class LlmTool {
   /// The name of the function that this tool implements.
   /// It is crucial that this matches the `functionName` in the corresponding `LlmToolCall` instance.
   /// If the names do not match, the ToolProvider will not be able to find and invoke the correct tool.
-  String get functionName;
+  String get toolName;
 
   /// The method that will be called when this tool is invoked.
   /// 
@@ -169,7 +169,7 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
   /// [call] - The LlmToolCall instance containing the task, function name, and parameters.
   void _callTool(LlmToolCall? call) {
     if(call == null) return;
-    final tool = _tools.where((t) => t.functionName == call.functionName).firstOrNull;
+    final tool = _tools.where((t) => t.toolName == call.functionName).firstOrNull;
 
     if(tool != null) {
       history.last.leading.add(tool.getFrament(call));

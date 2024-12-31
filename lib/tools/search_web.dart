@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class SearchWebTool extends LlmTool {
   @override
-  String get functionName => 'searchWeb';
+  String get toolName => 'searchWeb';
 
   launch(String query) async {
     final url = Uri(

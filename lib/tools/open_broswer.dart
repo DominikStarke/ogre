@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class OpenBrowserTool extends LlmTool {
   @override
-  String get functionName => 'openBrowser';
+  String get toolName => 'openBrowser';
 
   @override
   Future<void> call(LlmToolCall call) async {
