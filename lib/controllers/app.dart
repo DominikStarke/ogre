@@ -35,7 +35,7 @@ class AppController extends StatefulWidget {
 class AppControllerState extends State<AppController> with TrayListener, WindowListener, WidgetsBindingObserver {
 
   final WindowOptions _windowOptions = const WindowOptions(
-    size: Size(480, 1024),
+    size: Size(900, 600),
     titleBarStyle: TitleBarStyle.hidden,
     alwaysOnTop: true,
     skipTaskbar: true,
@@ -138,7 +138,7 @@ class AppControllerState extends State<AppController> with TrayListener, WindowL
     if(state == AppLifecycleState.inactive && _config.autoHide) {
       _hide();
     } else {
-      clipboard.update();
+      // clipboard.update();
     }
   }
 

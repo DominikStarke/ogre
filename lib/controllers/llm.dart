@@ -38,17 +38,61 @@ class LlmControllerState extends State<LlmController> {
   List<LlmConfigStoreModel> get configs => [..._configs];
   LlmConfigStoreModel get selectedConfig => _configs.firstWhere((config) => config.isDefault, orElse: () => _configs.first);
 
+
+  ValueNotifier<List<OwuiChatListEntry>>? _chatListChanged;
+  ValueNotifier<List<OwuiChatListEntry>> get chatListChanged {
+    _chatListChanged = _chatListChanged ?? ValueNotifier<List<OwuiChatListEntry>>(_chatList);
+    return _chatListChanged!;
+  }
+
+  final List<OwuiChatListEntry> _chatList = [];
+  List<OwuiChatListEntry> get chatList => [..._chatList];
+  // OwuiChatListEntry get selectedChat => _chatList.firstWhere((config) => config.isDefault, orElse: () => _chatList.first);
+
   late final clipboard = AppController.of(context).clipboard;
 
-  LlmProvider _llmProvider = EchoProvider();
+  LlmProvider __llmProvider = EchoProvider(); // The actual provider wrapper by _llmProvider
+  LlmProvider _llmProvider = EchoProvider(); // Tool provider wrapper for __llmProvider
   LlmProvider? get llmProvider => _llmProvider;
 
   final _configStore = LlmConfigStore();
+
+  bool get supportsChatRetrieval {
+    return __llmProvider is OpenWebUIProvider;
+  }
+
 
   Future<void> loadConfigs () async {
     _configs.clear();
     _configs.addAll(await _configStore.loadAll());
     configure(selectedConfig);
+  }
+
+  Future<void> loadChatList () async {
+    if(!supportsChatRetrieval) {
+      return;
+    }
+
+    final chatList = await (__llmProvider as OpenWebUIProvider).listChats();
+    _chatList.clear();
+    _chatList.addAll(chatList);
+    chatListChanged.value = chatList;
+  }
+
+  Future<void> loadChat (OwuiChatListEntry chat) async {
+    if(!supportsChatRetrieval) {
+      return;
+    }
+
+    await (__llmProvider as OpenWebUIProvider).loadChat(chat.id);
+  }
+  
+  void clearChat () async {
+    if(!supportsChatRetrieval) {
+      return;
+    }
+
+    (__llmProvider as OpenWebUIProvider).clearChat();
   }
 
   Future<void> saveConfigs (List<LlmConfigStoreModel> configs) async {
@@ -69,14 +113,13 @@ class LlmControllerState extends State<LlmController> {
 
     config.isDefault = true;
     if (config.provider == LlmProviderType.openwebui) {
-      _llmProvider = OpenWebUIProvider(
+      __llmProvider = OpenWebUIProvider(
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
-        history: _llmProvider.history,
       );
     } else if (config.provider == LlmProviderType.openai) {
-      _llmProvider = OpenAIProvider(
+      __llmProvider = OpenAIProvider(
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
@@ -85,7 +128,7 @@ class LlmControllerState extends State<LlmController> {
         queryParams: config.queryParams,
       )..history = _llmProvider.history;
     } else if (config.provider == LlmProviderType.anthropic) {
-      _llmProvider = AnthropicProvider(
+      __llmProvider = AnthropicProvider(
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
@@ -93,7 +136,7 @@ class LlmControllerState extends State<LlmController> {
         queryParams: config.queryParams,
       )..history = _llmProvider.history;
     } else if (config.provider == LlmProviderType.ollama) {
-      _llmProvider = OllamaProvider(
+      __llmProvider = OllamaProvider(
         baseUrl: config.host,
         model: config.model,
         headers: config.header,
@@ -109,14 +152,12 @@ class LlmControllerState extends State<LlmController> {
         SearchImagesTool(),
         SearchMapsTool(),
       ],
-      provider: _llmProvider
+      provider: __llmProvider
     );
 
     configChanged.value = configs;
-  }
 
-  void clearChat () {
-    _llmProvider.history = [];
+    loadChatList();
   }
 
   Stream<String> clipboardAttachmentSender (String prompt, {required Iterable<Attachment> attachments}) async* {
