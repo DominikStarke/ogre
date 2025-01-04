@@ -22,7 +22,7 @@ class OgreChat extends StatelessWidget {
             children: [
 
               NavigationRail(
-                labelType: NavigationRailLabelType.all,
+                labelType: NavigationRailLabelType.none,
                 selectedIndex: 0,
                 // groupAlignment: groupAlignment,
                 onDestinationSelected: (int index) {
@@ -53,7 +53,7 @@ class OgreChat extends StatelessWidget {
                 ],
               ),
 
-              if(controller.supportsChatRetrieval) Drawer(
+              if(controller.isOpenWebUiProvider) Drawer(
                 width: 210,
                 child: ListenableBuilder(
                   listenable: controller.chatListChanged,

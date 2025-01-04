@@ -17,7 +17,7 @@ abstract class LlmTool {
   /// [call] - The LlmToolCall instance containing the task, function name, and parameters.
   Future<void> call(LlmToolCall call);
 
-  ChatMessageFragment getFrament(LlmToolCall call);
+  Widget getFrament(LlmToolCall call);
 }
 
 /// The LlmToolCall class represents a call to a tool with specific parameters.

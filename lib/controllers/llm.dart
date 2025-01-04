@@ -39,14 +39,23 @@ class LlmControllerState extends State<LlmController> {
   LlmConfigStoreModel get selectedConfig => _configs.firstWhere((config) => config.isDefault, orElse: () => _configs.first);
 
 
-  ValueNotifier<List<OwuiChatListEntry>>? _chatListChanged;
+  final ValueNotifier<List<OwuiChatListEntry>> _chatListChanged = ValueNotifier<List<OwuiChatListEntry>>([]);
   ValueNotifier<List<OwuiChatListEntry>> get chatListChanged {
-    _chatListChanged = _chatListChanged ?? ValueNotifier<List<OwuiChatListEntry>>(_chatList);
-    return _chatListChanged!;
+    if(!isOpenWebUiProvider) {
+      return _chatListChanged;
+    }
+
+    return (__llmProvider as OpenWebUIProvider).chatListNotifier;
   }
 
   final List<OwuiChatListEntry> _chatList = [];
-  List<OwuiChatListEntry> get chatList => [..._chatList];
+  List<OwuiChatListEntry> get chatList {
+    if(!isOpenWebUiProvider) {
+      return _chatList;
+    }
+
+    return (__llmProvider as OpenWebUIProvider).chats;
+  }
   // OwuiChatListEntry get selectedChat => _chatList.firstWhere((config) => config.isDefault, orElse: () => _chatList.first);
 
   late final clipboard = AppController.of(context).clipboard;
@@ -57,7 +66,7 @@ class LlmControllerState extends State<LlmController> {
 
   final _configStore = LlmConfigStore();
 
-  bool get supportsChatRetrieval {
+  bool get isOpenWebUiProvider {
     return __llmProvider is OpenWebUIProvider;
   }
 
@@ -68,19 +77,8 @@ class LlmControllerState extends State<LlmController> {
     configure(selectedConfig);
   }
 
-  Future<void> loadChatList () async {
-    if(!supportsChatRetrieval) {
-      return;
-    }
-
-    final chatList = await (__llmProvider as OpenWebUIProvider).listChats();
-    _chatList.clear();
-    _chatList.addAll(chatList);
-    chatListChanged.value = chatList;
-  }
-
   Future<void> loadChat (OwuiChatListEntry chat) async {
-    if(!supportsChatRetrieval) {
+    if(!isOpenWebUiProvider) {
       return;
     }
 
@@ -88,7 +86,7 @@ class LlmControllerState extends State<LlmController> {
   }
   
   void clearChat () async {
-    if(!supportsChatRetrieval) {
+    if(!isOpenWebUiProvider) {
       return;
     }
 
@@ -115,7 +113,6 @@ class LlmControllerState extends State<LlmController> {
     if (config.provider == LlmProviderType.openwebui) {
       __llmProvider = OpenWebUIProvider(
         baseUrl: config.host,
-        model: config.model,
         apiKey: config.apiKey,
       );
     } else if (config.provider == LlmProviderType.openai) {
@@ -156,8 +153,6 @@ class LlmControllerState extends State<LlmController> {
     );
 
     configChanged.value = configs;
-
-    loadChatList();
   }
 
   Stream<String> clipboardAttachmentSender (String prompt, {required Iterable<Attachment> attachments}) async* {

@@ -17,7 +17,7 @@ class OpenBrowserTool extends LlmTool {
   }
 
   @override
-  DefaultToolFragment getFrament(LlmToolCall call) {
+  Widget getFrament(LlmToolCall call) {
     return DefaultToolFragment(
       // title: call.functionName,
       // subTitle: call.task,

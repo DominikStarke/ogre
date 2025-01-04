@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 
-class DefaultToolFragment extends ChatMessageFragment {
+class DefaultToolFragment extends StatelessWidget {
   final String? title;
   final String? subTitle;
   final Widget body;
   final IconData icon;
 
-  DefaultToolFragment({
+  const DefaultToolFragment({
+    super.key,
     this.title,
     this.subTitle,
     required this.body,
@@ -15,7 +15,7 @@ class DefaultToolFragment extends ChatMessageFragment {
   });
 
   @override
-  Widget builder(BuildContext context) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
       key: key,
