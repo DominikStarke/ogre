@@ -81,16 +81,11 @@ class OgreChat extends StatelessWidget {
                         child: Text("No provider selected. Go to settings and configure your AI provider.")
                       );
                     } else {
-                      return Center(
-                        child: SizedBox(
-                          width: 640,
-                          child: LlmChatView(
-                            messageSender: controller.clipboardAttachmentSender,
-                            provider: controller.llmProvider!,
-                            // responseBuilder: controller.responseBuilder,
-                            style: materialChatThemeOf(context),
-                          ),
-                        ),
+                      return LlmChatView(
+                        messageSender: controller.clipboardAttachmentSender,
+                        provider: controller.llmProvider!,
+                        // responseBuilder: controller.responseBuilder,
+                        style: materialChatThemeOf(context),
                       );
                     }
                   } 
