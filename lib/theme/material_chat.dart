@@ -10,33 +10,33 @@ LlmChatViewStyle materialChatThemeOf (BuildContext context) {
   return LlmChatViewStyle(
     backgroundColor: theme.scaffoldBackgroundColor,
     progressIndicatorColor: scheme.onPrimaryContainer,
-    userMessageStyle: ChatMessageStyle(
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20)
-        ),
-      ),
-      textStyle: TextStyle(color: scheme.onSurface),
-    ),
-    llmMessageStyle: ChatMessageStyle(
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(20),
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20)
-        ),
-      ),
-      markdownStyle: MarkdownStyleSheet.fromTheme(theme),
-      iconColor: scheme.onTertiary,
-      iconDecoration: BoxDecoration(
-        color: scheme.tertiary,
-        shape: BoxShape.circle,
-      ),
-    ),
+    // userMessageStyle: ChatMessageStyle(
+    //   decoration: BoxDecoration(
+    //     color: scheme.surfaceContainerHighest,
+    //     borderRadius: const BorderRadius.only(
+    //       topLeft: Radius.circular(20),
+    //       bottomLeft: Radius.circular(20),
+    //       bottomRight: Radius.circular(20)
+    //     ),
+    //   ),
+    //   textStyle: TextStyle(color: scheme.onSurface),
+    // ),
+    // llmMessageStyle: ChatMessageStyle(
+    //   decoration: BoxDecoration(
+    //     color: scheme.surfaceContainer,
+    //     borderRadius: const BorderRadius.only(
+    //       topRight: Radius.circular(20),
+    //       bottomLeft: Radius.circular(20),
+    //       bottomRight: Radius.circular(20)
+    //     ),
+    //   ),
+    //   markdownStyle: MarkdownStyleSheet.fromTheme(theme),
+    //   iconColor: scheme.onTertiary,
+    //   iconDecoration: BoxDecoration(
+    //     color: scheme.tertiary,
+    //     shape: BoxShape.circle,
+    //   ),
+    // ),
     chatInputStyle: ChatInputStyle(
       backgroundColor: theme.scaffoldBackgroundColor,
       decoration: BoxDecoration(

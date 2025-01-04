@@ -172,7 +172,7 @@ class ToolProvider extends LlmProvider with ChangeNotifier {
     final tool = _tools.where((t) => t.toolName == call.functionName).firstOrNull;
 
     if(tool != null) {
-      history.last.leading.add(tool.getFrament(call));
+      // history.last.leading.add(tool.getFrament(call));
       tool.call(call);
     } else {
       log("Tool ${call.functionName} not found. Parameters: ${call.parameters}");
