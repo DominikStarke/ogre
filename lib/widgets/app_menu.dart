@@ -99,9 +99,9 @@ class AppMenu extends StatelessWidget {
             
                   MenuItemButton(
                     onPressed: () {
-                      controller.clearChat();
+                      controller.deleteChat();
                     },
-                    child: Text('Clear chat', style: TextStyle(color: scheme.error)),
+                    child: Text('Delete Chat', style: TextStyle(color: scheme.error)),
                   ),
                 ],
               ),

@@ -120,6 +120,14 @@ class LlmControllerState extends State<LlmController> {
     (_llmProvider as OpenWebUIProvider).clearChat();
   }
 
+  void deleteChat () async {
+    if(!isOpenWebUiProvider) {
+      return;
+    }
+
+    (_llmProvider as OpenWebUIProvider).deleteChat();
+  }
+
   Future<void> saveConfigs (List<LlmConfigStoreModel> configs) async {
     _configs.clear();
     _configs.addAll(configs);
@@ -192,12 +200,17 @@ class LlmControllerState extends State<LlmController> {
   Widget responseBuilder (BuildContext context, ChatMessage message) {
     if(message is OwuiChatMessage) {
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if(message.statusHistory.isNotEmpty) Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Status: ${message.statusHistory.last.description}"),
+              child: Row(
+                spacing: 8,
+                children: [
+                  const Icon(Icons.info_outline_rounded),
+                  Text(message.statusHistory.last.description),
+                ],
+              ),
             )
           ),
           
@@ -216,7 +229,13 @@ class LlmControllerState extends State<LlmController> {
             for(final source in message.sources) Card(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Source: ${source.source?.name}"),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    const Icon(Icons.link),
+                    Text("${source.source?.name}"),
+                  ],
+                ),
               )
             ),
           
