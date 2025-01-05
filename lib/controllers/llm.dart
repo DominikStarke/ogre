@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ai_providers/flutter_ai_providers.dart';
 import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:ogre/controllers/app.dart';
 import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/llm_providers/const.dart';
@@ -186,6 +187,47 @@ class LlmControllerState extends State<LlmController> {
     // );
 
     configChanged.value = configs;
+  }
+
+  Widget responseBuilder (BuildContext context, ChatMessage message) {
+    if(message is OwuiChatMessage) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if(message.statusHistory.isNotEmpty) Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Status: ${message.statusHistory.last.description}"),
+            )
+          ),
+          
+          if(message.statusHistory.isNotEmpty)
+            const Divider(),
+          
+          MarkdownBody(
+            data: message.text ?? "",
+            selectable: false,
+          ),
+
+          if(message.sources.isNotEmpty)
+            const Divider(),
+            
+          if(message.sources.isNotEmpty)
+            for(final source in message.sources) Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Source: ${source.source?.name}"),
+              )
+            ),
+          
+        ],
+      );
+    }
+
+    return MarkdownBody(
+      data: message.text ?? "",
+      selectable: false,
+    );
   }
 
   Stream<String> clipboardAttachmentSender (String prompt, {required Iterable<Attachment> attachments}) async* {

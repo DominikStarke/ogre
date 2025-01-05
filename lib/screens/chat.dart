@@ -84,7 +84,7 @@ class OgreChat extends StatelessWidget {
                       return LlmChatView(
                         messageSender: controller.clipboardAttachmentSender,
                         provider: controller.llmProvider!,
-                        // responseBuilder: controller.responseBuilder,
+                        responseBuilder: controller.responseBuilder,
                         style: materialChatThemeOf(context),
                       );
                     }
