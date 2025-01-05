@@ -4,12 +4,6 @@ import 'package:flutter_ai_toolkit/flutter_ai_toolkit.dart';
 import 'package:ogre/controllers/app.dart';
 import 'package:ogre/controllers/llm_config_store.dart';
 import 'package:ogre/llm_providers/const.dart';
-import 'package:ogre/llm_providers/tool.dart';
-import 'package:ogre/tools/open_broswer.dart';
-import 'package:ogre/tools/search_images.dart';
-import 'package:ogre/tools/search_maps.dart';
-import 'package:ogre/tools/search_videos.dart';
-import 'package:ogre/tools/search_web.dart';
 
 class LlmController extends StatefulWidget {
   final Widget child;
@@ -45,7 +39,7 @@ class LlmControllerState extends State<LlmController> {
       return _chatListChanged;
     }
 
-    return (__llmProvider as OpenWebUIProvider).chatListNotifier;
+    return (_llmProvider as OpenWebUIProvider).chatListNotifier;
   }
 
   final List<OwuiChatListEntry> _chatList = [];
@@ -54,20 +48,20 @@ class LlmControllerState extends State<LlmController> {
       return _chatList;
     }
 
-    return (__llmProvider as OpenWebUIProvider).chats;
+    return (_llmProvider as OpenWebUIProvider).chats;
   }
   // OwuiChatListEntry get selectedChat => _chatList.firstWhere((config) => config.isDefault, orElse: () => _chatList.first);
 
   late final clipboard = AppController.of(context).clipboard;
 
-  LlmProvider __llmProvider = EchoProvider(); // The actual provider wrapper by _llmProvider
-  LlmProvider _llmProvider = EchoProvider(); // Tool provider wrapper for __llmProvider
+  // LlmProvider _llmProvider = EchoProvider(); // The actual provider wrapper by _llmProvider
+  LlmProvider _llmProvider = EchoProvider(); // Tool provider wrapper for _llmProvider
   LlmProvider? get llmProvider => _llmProvider;
 
   final _configStore = LlmConfigStore();
 
   bool get isOpenWebUiProvider {
-    return __llmProvider is OpenWebUIProvider;
+    return _llmProvider is OpenWebUIProvider;
   }
 
 
@@ -82,7 +76,7 @@ class LlmControllerState extends State<LlmController> {
       return;
     }
 
-    await (__llmProvider as OpenWebUIProvider).loadChat(chat.id);
+    await (_llmProvider as OpenWebUIProvider).loadChat(chat.id);
   }
   
   void clearChat () async {
@@ -90,7 +84,7 @@ class LlmControllerState extends State<LlmController> {
       return;
     }
 
-    (__llmProvider as OpenWebUIProvider).clearChat();
+    (_llmProvider as OpenWebUIProvider).clearChat();
   }
 
   Future<void> saveConfigs (List<LlmConfigStoreModel> configs) async {
@@ -111,12 +105,19 @@ class LlmControllerState extends State<LlmController> {
 
     config.isDefault = true;
     if (config.provider == LlmProviderType.openwebui) {
-      __llmProvider = OpenWebUIProvider(
+      final history = _llmProvider.history;
+      final provider = OpenWebUIProvider(
         baseUrl: config.host,
         apiKey: config.apiKey,
       );
+
+      if(history.isNotEmpty == true) {
+        provider.createChat(history);
+      }
+
+      _llmProvider = provider;
     } else if (config.provider == LlmProviderType.openai) {
-      __llmProvider = OpenAIProvider(
+      _llmProvider = OpenAIProvider(
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
@@ -125,7 +126,7 @@ class LlmControllerState extends State<LlmController> {
         queryParams: config.queryParams,
       )..history = _llmProvider.history;
     } else if (config.provider == LlmProviderType.anthropic) {
-      __llmProvider = AnthropicProvider(
+      _llmProvider = AnthropicProvider(
         baseUrl: config.host,
         model: config.model,
         apiKey: config.apiKey,
@@ -133,7 +134,7 @@ class LlmControllerState extends State<LlmController> {
         queryParams: config.queryParams,
       )..history = _llmProvider.history;
     } else if (config.provider == LlmProviderType.ollama) {
-      __llmProvider = OllamaProvider(
+      _llmProvider = OllamaProvider(
         baseUrl: config.host,
         model: config.model,
         headers: config.header,
@@ -141,16 +142,16 @@ class LlmControllerState extends State<LlmController> {
       )..history = _llmProvider.history;
     }
 
-    _llmProvider = ToolProvider(
-      tools: [
-        OpenBrowserTool(),
-        SearchWebTool(),
-        SearchVideosTool(),
-        SearchImagesTool(),
-        SearchMapsTool(),
-      ],
-      provider: __llmProvider
-    );
+    // _llmProvider = ToolProvider(
+    //   tools: [
+    //     OpenBrowserTool(),
+    //     SearchWebTool(),
+    //     SearchVideosTool(),
+    //     SearchImagesTool(),
+    //     SearchMapsTool(),
+    //   ],
+    //   provider: _llmProvider
+    // );
 
     configChanged.value = configs;
   }
