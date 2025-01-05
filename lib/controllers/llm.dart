@@ -42,6 +42,38 @@ class LlmControllerState extends State<LlmController> {
     return (_llmProvider as OpenWebUIProvider).chatListNotifier;
   }
 
+  List<String> get modelSelection {
+    if(!isOpenWebUiProvider) {
+      return [];
+    }
+
+    return (_llmProvider as OpenWebUIProvider).modelSelection;
+  }
+
+  set modelSelection (List<String> models) {
+    if(!isOpenWebUiProvider) {
+      return;
+    }
+
+    (_llmProvider as OpenWebUIProvider).modelSelection = models;
+  }
+
+  List<String> get models {
+    if(!isOpenWebUiProvider) {
+      return [];
+    }
+
+    return (_llmProvider as OpenWebUIProvider).models;
+  }
+
+  get modelListNotifier {
+    if(!isOpenWebUiProvider) {
+      return ValueNotifier<List<String>>([]);
+    }
+
+    return (_llmProvider as OpenWebUIProvider).modelListNotifier;
+  }
+
   final List<OwuiChatListEntry> _chatList = [];
   List<OwuiChatListEntry> get chatList {
     if(!isOpenWebUiProvider) {
