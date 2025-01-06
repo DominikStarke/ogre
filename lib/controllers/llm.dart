@@ -208,7 +208,7 @@ class LlmControllerState extends State<LlmController> {
                 spacing: 8,
                 children: [
                   const Icon(Icons.info_outline_rounded),
-                  Text(message.statusHistory.last.description),
+                  Expanded(child: Text(message.statusHistory.last.description, overflow: TextOverflow.ellipsis,)),
                 ],
               ),
             )
@@ -233,7 +233,7 @@ class LlmControllerState extends State<LlmController> {
                   spacing: 8,
                   children: [
                     const Icon(Icons.link),
-                    Text("${source.source?.name}"),
+                    Expanded(child: Text("${source.source?.name}", overflow: TextOverflow.ellipsis,)),
                   ],
                 ),
               )

@@ -57,6 +57,11 @@ class AppMenu extends StatelessWidget {
             
                   const Divider(),
 
+                  const PopupMenuItem(
+                    enabled: false,
+                    child: Text("Models")
+                  ),
+
                   for(final model in controller.models) MenuItemButton(
                     onPressed: () {
                       toggleModleSelection(model);
@@ -76,6 +81,11 @@ class AppMenu extends StatelessWidget {
 
                   const Divider(),
             
+                  const PopupMenuItem(
+                    enabled: false,
+                    child: Text("Providers")
+                  ),
+
                   for(final config in configs) MenuItemButton(
                     onPressed: () {
                       controller.configure(config);
@@ -90,12 +100,12 @@ class AppMenu extends StatelessWidget {
                             controller.saveConfigs(configs);
                           },
                         ),
-                        Text(config.name),
+                        Text("(${config.provider.value}) ${config.name}"),
                       ],
                     ),
                   ),
             
-                  const Divider(),
+                  const PopupMenuDivider(),
             
                   MenuItemButton(
                     onPressed: () {
